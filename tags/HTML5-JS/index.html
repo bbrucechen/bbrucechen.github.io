@@ -13,11 +13,11 @@
 
     <title>
         
-          简单的实现上传文件进度条 - undefined
+          
         
     </title>
 
-    <link rel="canonical" href="http://www.brucecave.com/2019/10/31/简单的实现上传文件进度条/">
+    <link rel="canonical" href="http://www.brucecave.com/tags/HTML5-JS/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -123,148 +123,7 @@
 
 
     <!-- Main Content -->
-    
-<!-- Image to hack wechat -->
-<!-- <img src="http://www.brucecave.com/img/icon_wechat.png" width="0" height="0"> -->
-<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
-
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header{
-        background-image: url('/img/123123.jpg')
-    }
-</style>
-<header class="intro-header" >
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <div class="post-heading">
-                    <div class="tags">
-                        
-                    </div>
-                    <h1>简单的实现上传文件进度条</h1>
-                    <h2 class="subheading"></h2>
-                    <span class="meta">
-                        Posted by Bruce Chen on
-                        2019-10-31
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
-
-<!-- Post Content -->
-<article>
-    <div class="container">
-        <div class="row">
-
-    <!-- Post Container -->
-            <div class="
-                col-lg-8 col-lg-offset-2
-                col-md-10 col-md-offset-1
-                post-container">
-
-                <p>实现文件上传（即input标签的file类型），可以使用XMLHttpRequest对象中的upload属性的progress事件，该事件的事件对象可以返回上传进度相关数据</p>
-<p>XMLHttpRequestObject.upload.onprogress = function(e){};</p>
-<p>其中e.loaded表示已经上传的数据大小，e.total表示整个文件的大小，用e.loaded除以e.total就可以获取上传的进度</p>
-<p>&nbsp;</p>
-<p>那么该如何实现利用XHR传送表单呢？</p>
-<p>我们可以利用FormData类对象来对form表单快速转化为键值对的构造方式，并将其作为请求主题发送出去</p>
-<p>如下</p>
-<div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">&lt;form&gt;
-        &lt;input type="text" name="username" &gt;
-        &lt;input type="password" name="userpwd" &gt;
-        &lt;input type="file" name="userfile" &gt;
-        &lt;input type="button" value="提交"&gt;
-&lt;/form&gt;
-
-<p>&lt;script&gt;<br>    var form = document.querySelector(“form”);<br>    var formObj = new FormData(form);<br>    var xhr = new XMLHttpRequest();<br>    xhr.open(‘post’,’data.php’);<br>    xhr.send(formObj);<br>&lt;/script&gt;<br></pre></p>
-</div>
-<p>由于FormData对象已经将form表单数据转化好，所以不再用设置请求头了，此时在服务器端就可以通过表单元素的name属性值获取表单值</p>
-<p>&nbsp;</p>
-<p>综上所述，我们通过以下代码实现简单的文件上传进度条</p>
-<div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">&lt;!DOCTYPE html&gt;
-&lt;html lang="en"&gt;
-&lt;head&gt;
-    &lt;meta charset="UTF-8"&gt;
-    &lt;title&gt;Document&lt;/title&gt;
-    &lt;style type="text/css" media="screen"&gt;
-        .outer {
-            width:400px;
-            height:30px;
-            border: 1px solid #000;
-            box-sizing: border-box;
-        }
-        .inner {
-            width:0px;
-            height:28px;
-            background-color: yellowgreen;
-
-<pre><code>    }
-&amp;lt;/style&amp;gt;</code></pre><p>&lt;/head&gt;<br>&lt;body&gt;<br>    &lt;form&gt;<br>        &lt;input type=”text” name=”username” &gt;<br>        &lt;input type=”password” name=”userpwd” &gt;<br>        &lt;input type=”file” name=”userfile” &gt;<br>        &lt;input type=”button” value=”提交”&gt;<br>    &lt;/form&gt;<br>    &lt;!– 进度条外壳 –&gt;<br>    &lt;div class=”outer”&gt;<br>        &lt;!– 进度条 –&gt;<br>        &lt;div class=”inner”&gt;&lt;/div&gt;<br>    &lt;/div&gt;<br>    &lt;script type=”text/javascript”&gt;<br>        // 获取form表单<br>        var form = document.querySelector(“form”);<br>        // 获取提交键<br>        var submit = document.querySelector(“input[type=button]”);<br>        // 获取进度条<br>        var inner = document.querySelector(“.inner”);<br>        // 为提交键设置事件<br>        submit.onclick = function(){<br>            // 利用FormData快速格式化form表单<br>            var formObj = new FormData(form);<br>            // 创建xhr对象<br>            var xhr = new XMLHttpRequest();<br>            // 设置上传方式和网址<br>            xhr.open(‘post’,’data.php’);<br>            // 因为FormData已经格式化好了，所以不用设置请求头了<br>            // xhr.setRequestHeader(“Content-type”,”application/x-www-form-urlencoded”);<br>            // 每当上传进度变化时就触发progress事件，改变进度条长度<br>            xhr.upload.onprogress = function(e){<br>                // 398为进度条最大长度<br>                inner.style.width = ((e.loaded / e.total) * 398) + ‘px’;<br>            }<br>            // 发送请求，将格式化后的form表单作为发送主体<br>            xhr.send(formObj);<br>        }<br>    &lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;<br></pre></p>
-</div>
-<p>　　步骤总结：</p>
-<ol>
-<li>将包含有file类型的表单通过FormData构造函数格式化</li>
-<li>创建XMLHttpRequest对象并设置发送方式（post）和请求网址</li>
-<li>设置上传进度事件，利用其事件对象获取上传进度百分比并改变进度条长度</li>
-<li>发送请求主题</li>
-</ol>
-<p>&nbsp;</p>
-
-                <hr>
-
-                
-
-                <ul class="pager">
-                    
-                        <li class="previous">
-                            <a href="/2019/11/11/对于Node中Express框架的中间件概念的感知/" data-toggle="tooltip" data-placement="top" title="对于Node中Express框架的中间件概念的感知">&larr; Previous Post</a>
-                        </li>
-                    
-                    
-                        <li class="next">
-                            <a href="/2019/10/13/移动端开发rem布局之less-媒体查询布局的原理步骤和心得/" data-toggle="tooltip" data-placement="top" title="移动端开发rem布局之less+媒体查询布局的原理步骤和心得">Next Post &rarr;</a>
-                        </li>
-                    
-                </ul>
-
-                
-
-                
-
-            </div>
-    <!-- Side Catalog Container -->
-        
-
-    <!-- Sidebar Container -->
-
-            <div class="
-                col-lg-8 col-lg-offset-2
-                col-md-10 col-md-offset-1
-                sidebar-container">
-
-                <!-- Featured Tags -->
-                
-
-                <!-- Friends Blog -->
-                
-            </div>
-
-        </div>
-    </div>
-</article>
-
-
-
-
-
-
-
-
+    <!-- Default Archive layout, we use archives instead. -->
 
     <!-- Footer -->
     <!-- Footer -->

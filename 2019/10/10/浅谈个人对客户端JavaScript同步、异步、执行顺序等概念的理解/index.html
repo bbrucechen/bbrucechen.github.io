@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="小树不倒我不倒">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+          浅谈个人对客户端JavaScript同步、异步、执行顺序等概念的理解 - undefined
+        
+    </title>
+
+    <link rel="canonical" href="http://www.brucecave.com/2019/10/10/浅谈个人对客户端JavaScript同步、异步、执行顺序等概念的理解/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Bruce&#39;s cave</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    
+<!-- Image to hack wechat -->
+<!-- <img src="http://www.brucecave.com/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/123123.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                          <a class="tag" href="/tags/#JS" title="JS">JS</a>
+                        
+                    </div>
+                    <h1>浅谈个人对客户端JavaScript同步、异步、执行顺序等概念的理解</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by Bruce Chen on
+                        2019-10-10
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <p>一.同步和异步的概念。</p>
+<p>同步：即按代码的顺序执行任务。</p>
+<p>在下列代码中，按照同步概念，则是先打印1后打印2。</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;">1</span> console.log(1<span style="color: #000000;">);
+</span><span style="color: #008080;">2</span> console.log(2);</pre>
+</div>
+<p>异步：即执行一个任务的同时执行另一个任务。如果按照此概念执行上面代码，则是同时打印出1和2。</p>
+<p>&nbsp;</p>
+<p>二.客户端JavaScript中代码的执行顺序</p>
+<p>首先，不管是核心JavaScript还是客户端JavaScript都不包含任何线程机制，只有一个单线程执行模型。单线程即指脚本和事件处理程序在同一时间只能执行一个，不能同时执行，没有并发性。（HTML5定义了一种为后台线程的&ldquo;Web Worker&rdquo;，本人不甚了解，不做赘述）。</p>
+<p>单线程的好处在于编程更加简单，编写代码可以确保两个事件处理程序不会同时运行，操作DOM文档也不会担心有其他线程同时修改文档。但这也意味着JavaScript脚本和事件处理程序不能运行太久，否则会降低网页的可读性，甚至导致浏览器奔溃的假象。那么，一个JS程序是怎么具体执行的呢？</p>
+<p>JS的执行任务分为同步任务和异步任务：</p>
+<p>同步任务：指除了异步任务之外的其他程序。</p>
+<p>异步任务：指各种事件（比如资源载入事件中的loaded、DOMContentLoaded中的回调函数，普通事件中的click，focus，mouseover中的回调函数，window对象的定时器setInterval、setTimeout中的回调函数等等）。</p>
+<p>过程：一个js程序执行时，首先将同步任务放入一个<span style="color: #ff0000;"><strong>执行栈</strong></span>中，先解析同步任务和异步任务并且按顺序执行所有同步任务。当异步任务被触发时（如用户点击鼠标或者按下键盘），异步进程处理则会检测到并将其对应的异步任务转移到<span style="color: #ff0000;"><strong>任务队列</strong></span>中。同步任务全部执行完毕后，则查看任务队列中是否有未完成的回调函数，如果有则按顺序执行。在此后期间会不断查看任务队列并不断执行，形成事件循环。请看如下过程图</p>
+<p><img src="https://img2018.cnblogs.com/blog/1824968/201910/1824968-20191010204151229-1123476929.jpg" alt="" width="589" height="405" /></p>
+<p>&nbsp;</p>
+<p>三、HTML文件中script标签的执行顺序和其属性defer、async产生的影响</p>
+<p>1.在默认情况下，HTML解析器遇到script标签时，是先执行脚本，进入脚本并按上面所述的顺序执行完代码。然后再继续解析渲染HTML页面文档，这是对于内联脚本来说。但同样的，对于一个由src属性指定外部文件的脚本来说，也是先下载并执行该脚本。也就是说，在完成改脚本的下载和执行前，其后面的文档部分都不会显现出来（实际上DOM树已经被载入，但是没被解析为DOM树）。</p>
+<p>以下一个1996最先进的JS代码可以证明该概念（当时没有那么多的异步事件API实现异步调用，所以用如下的同步程序来实现动态添加HTML元素）</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;"> 1</span> &lt;!DOCTYPE html&gt;
+<span style="color: #008080;"> 2</span> &lt;html lang="en"&gt;
+<span style="color: #008080;"> 3</span> &lt;head&gt;
+<span style="color: #008080;"> 4</span>     &lt;meta charset="UTF-8"&gt;
+<span style="color: #008080;"> 5</span>     &lt;title&gt;Document&lt;/title&gt;
+<span style="color: #008080;"> 6</span> &lt;/head&gt;
+<span style="color: #008080;"> 7</span> &lt;body&gt;
+<span style="color: #008080;"> 8</span>     &lt;h1&gt;Table of Factorials&lt;/h1&gt;
+<span style="color: #008080;"> 9</span>     &lt;script&gt;
+<span style="color: #008080;">10</span>         <span style="color: #0000ff;">function</span> factorial(n) {            <span style="color: #008000;">//</span><span style="color: #008000;">用来实现阶乘的函数</span>
+<span style="color: #008080;">11</span>             <span style="color: #0000ff;">if</span>(n &lt;= 1) <span style="color: #0000ff;">return</span><span style="color: #000000;"> n;
+</span><span style="color: #008080;">12</span>             <span style="color: #0000ff;">else</span> <span style="color: #0000ff;">return</span> n * factorial(n-1<span style="color: #000000;">);
+</span><span style="color: #008080;">13</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">14</span> 
+<span style="color: #008080;">15</span>         document.write("&lt;table&gt;");        <span style="color: #008000;">//</span><span style="color: #008000;">开始创建表格        </span>
+<span style="color: #008080;">16</span>         document.write("&lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;th&gt;n!&lt;/th&gt;&lt;/tr&gt;");     <span style="color: #008000;">//</span><span style="color: #008000;">创建表头        </span>
+<span style="color: #008080;">17</span>         <span style="color: #0000ff;">for</span>(<span style="color: #0000ff;">var</span> i = 0;i &lt;= 10;i++<span style="color: #000000;">) {
+</span><span style="color: #008080;">18</span>             document.write("&lt;tr&gt;&lt;td&gt;" + i + "&lt;/td&gt;&lt;td&gt;" + factorial(i) + "&lt;/td&gt;&lt;/tr&gt;");  <span style="color: #008000;">//</span><span style="color: #008000;">输出十行表格</span>
+<span style="color: #008080;">19</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">20</span>         document.write("&lt;/table&gt;");        <span style="color: #008000;">//</span><span style="color: #008000;">表格结束</span>
+<span style="color: #008080;">21</span>         document.write("Generated at " + <span style="color: #0000ff;">new</span> Date());   <span style="color: #008000;">//</span><span style="color: #008000;">输出时间戳</span>
+<span style="color: #008080;">22</span>     &lt;/script&gt;<br />　　　　&lt;h2&gt;Table of Factorials&lt;/h2&gt;
+<span style="color: #008080;">23</span> &lt;/body&gt;
+<span style="color: #008080;">24</span> &lt;/html&gt;</pre>
+</div>
+<p>以下为结果图：</p>
+<p><img src="https://img2018.cnblogs.com/blog/1824968/201910/1824968-20191010225408177-473501509.jpg" alt="" /></p>
+<p>可以得知，脚本的执行在默认的情况下是<span style="color: #ff0000;"><strong>同步和阻塞</strong></span>的，这是由其单线程模型决定的。但是，对于使用src引入外部文件的script标签来说，其属性defer和async可以改变这种情况，实现异步调用</p>
+<p>&nbsp;</p>
+<p>2.对于外联脚本（即由src属性引入外部js文件的脚本），其有两个属性可以改变同步状态&mdash;&mdash;<span style="color: #ff0000;"><strong>defer</strong></span>和<span style="color: #ff0000;"><strong>async</strong></span>（<strong>只要有这两个属性之一即为异步脚本</strong>）</p>
+<p><strong>defer（延迟）</strong>：有了该属性的外联脚本会<span style="color: #ff0000;"><strong>延迟解析执行</strong></span>，即<span style="color: #ff0000;"><strong>等待文档的载入和解析完成并可以操作时</strong></span>（不包括img，即可以理解为DOMContentLoaded事件触发时）才解析执行。看以下代码：</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;"> 1</span> &lt;!DOCTYPE html&gt;
+<span style="color: #008080;"> 2</span> &lt;html lang="en"&gt;
+<span style="color: #008080;"> 3</span> &lt;head&gt;
+<span style="color: #008080;"> 4</span>     &lt;meta charset="UTF-8"&gt;
+<span style="color: #008080;"> 5</span>     &lt;title&gt;Document&lt;/title&gt;
+<span style="color: #008080;"> 6</span>     &lt;style type="text/css" media="screen"&gt;
+<span style="color: #008080;"> 7</span> <span style="color: #000000;">        div {
+</span><span style="color: #008080;"> 8</span> <span style="color: #000000;">            width: 100px;
+</span><span style="color: #008080;"> 9</span> <span style="color: #000000;">            height:100px;
+</span><span style="color: #008080;">10</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">11</span>     &lt;/style&gt;
+<span style="color: #008080;">12</span> &lt;/head&gt;
+<span style="color: #008080;">13</span> &lt;body&gt;
+<span style="color: #008080;">14</span>     &lt;script type="text/javascript" src="console.js" defer&gt;&lt;/script&gt;
+<span style="color: #008080;">15</span>     &lt;script type="text/javascript"&gt;
+<span style="color: #008080;">16</span>         console.log(+<span style="color: #0000ff;">new</span><span style="color: #000000;"> Date());
+</span><span style="color: #008080;">17</span>     &lt;/script&gt;
+<span style="color: #008080;">18</span>     &lt;script type="text/javascript"&gt;
+<span style="color: #008080;">19</span>         document.addEventListener("DOMContentLoaded",<span style="color: #0000ff;">function</span><span style="color: #000000;">(){
+</span><span style="color: #008080;">20</span>             console.log(+<span style="color: #0000ff;">new</span><span style="color: #000000;"> Date());
+</span><span style="color: #008080;">21</span> <span style="color: #000000;">        });
+</span><span style="color: #008080;">22</span>     &lt;/script&gt;
+<span style="color: #008080;">23</span> &lt;/body&gt;
+<span style="color: #008080;">24</span> &lt;/html&gt;</pre>
+</div>
+<p>console.js的代码为：</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;">1</span> console.log(+<span style="color: #0000ff;">new</span> Date());</pre>
+</div>
+<p>运行结果截图：</p>
+<p><img src="https://img2018.cnblogs.com/blog/1824968/201910/1824968-20191010220048690-581391644.jpg" alt="" /></p>
+<p>可见，带有defer属性的console.js代码是第一个内联js执行后最后一个内联js执行前才执行的，印证了以上说法</p>
+<p>&nbsp;</p>
+<p><strong>async（异步）</strong>：HTML解析器在遇到带有该属性的脚本时，不会中止页面文档的解析，而是<strong><span style="color: #ff0000;">一边下载</span></strong>该脚本<strong><span style="color: #ff0000;">一边继续后面文档的解析</span></strong>，一旦脚本下载解析完成则<span style="color: #ff0000;"><strong>尽快停止文档解析并回去解析执行该脚本</strong></span>，从而避免了下载脚本时阻塞文档解析，可以凭此提高文档解析加载速度。看以下代码：</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;"> 1</span> &lt;!DOCTYPE html&gt;
+<span style="color: #008080;"> 2</span> &lt;html lang="en"&gt;
+<span style="color: #008080;"> 3</span> &lt;head&gt;
+<span style="color: #008080;"> 4</span>     &lt;meta charset="UTF-8"&gt;
+<span style="color: #008080;"> 5</span>     &lt;title&gt;Document&lt;/title&gt;
+<span style="color: #008080;"> 6</span>     &lt;style type="text/css" media="screen"&gt;
+<span style="color: #008080;"> 7</span> <span style="color: #000000;">        div {
+</span><span style="color: #008080;"> 8</span> <span style="color: #000000;">            width: 100px;
+</span><span style="color: #008080;"> 9</span> <span style="color: #000000;">            height:100px;
+</span><span style="color: #008080;">10</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">11</span>     &lt;/style&gt;
+<span style="color: #008080;">12</span> &lt;/head&gt;
+<span style="color: #008080;">13</span> &lt;body&gt;
+<span style="color: #008080;">14</span>     &lt;script type="text/javascript" src="console.js" async&gt;&lt;/script&gt;
+<span style="color: #008080;">15</span>     &lt;script type="text/javascript"&gt;
+<span style="color: #008080;">16</span>         console.log(+<span style="color: #0000ff;">new</span><span style="color: #000000;"> Date());
+</span><span style="color: #008080;">17</span>     &lt;/script&gt;
+<span style="color: #008080;">18</span>     &lt;div&gt;
+<span style="color: #008080;">19</span>         
+<span style="color: #008080;">20</span>     &lt;/div&gt;
+<span style="color: #008080;">21</span> &lt;/body&gt;
+<span style="color: #008080;">22</span> &lt;/html&gt;</pre>
+</div>
+<p>结果截图：</p>
+<p><img src="https://img2018.cnblogs.com/blog/1824968/201910/1824968-20191010213017430-596581192.jpg" alt="" /></p>
+<p>可以看出，原本按照默认方式应当先打印的console.js文件反而在内联script标签之后执行，可以印证上面所述。</p>
+<p>&nbsp;</p>
+<p>那么，如果两个属性都同时拥有呢？这样的标签会按照什么方式执行？答案是浏览器会遵从async属性并忽略defer属性。</p>
+<p>&nbsp;</p>
+<p>注意点：</p>
+<p>1.拥有这两个属性的script标签的js文件即为异步脚本，<span style="color: #ff0000;"><strong>异步脚本不能使用document.write（）</strong><span style="color: #000000;">（因为如果用该函数会覆盖掉其对应标签解析之前的文档内容）</span></span>；如下面代码：</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;"> 1</span> &lt;!DOCTYPE html&gt;
+<span style="color: #008080;"> 2</span> &lt;html lang="en"&gt;
+<span style="color: #008080;"> 3</span> &lt;head&gt;
+<span style="color: #008080;"> 4</span>     &lt;meta charset="UTF-8"&gt;
+<span style="color: #008080;"> 5</span>     &lt;title&gt;Document&lt;/title&gt;
+<span style="color: #008080;"> 6</span>     &lt;script type="text/javascript" src="console.js" defer&gt;&lt;/script&gt;
+<span style="color: #008080;"> 7</span>     &lt;script type="text/javascript" src="console2.js" async&gt;&lt;/script&gt;
+<span style="color: #008080;"> 8</span> 
+<span style="color: #008080;"> 9</span> &lt;/head&gt;
+<span style="color: #008080;">10</span> &lt;body&gt;
+<span style="color: #008080;">11</span>     
+<span style="color: #008080;">12</span> &lt;/body&gt;
+<span style="color: #008080;">13</span> &lt;/html&gt;</pre>
+</div>
+<p>其中console.js和console.log2代码都为：</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;">1</span> document.write(1);</pre>
+</div>
+<p>结果截图：</p>
+<p><img src="https://img2018.cnblogs.com/blog/1824968/201910/1824968-20191010220726472-1861388216.jpg" alt="" /></p>
+<p>2.defer和async都是布尔属性，<span style="color: #ff0000;"><strong>没有值</strong></span>，只要出现即能激活该属性</p>
+<p>3.defer和async都<span style="color: #ff0000;"><strong>只适用于外联脚本</strong></span>，内联脚本使用这两个属性是无效的。</p>
+<p>4.<span style="color: #ff0000;"><strong>defer能访问完整的文档树，无论其脚本位置在何处；而async必定能看到其脚本所在位置之前的文档树，但是可能或不可能访问其后面的文档内容。</strong></span></p>
+<p>&nbsp;</p>
+<p>四、客户端JavaScript执行顺序的总结</p>
+<p>JS程序的执行有两个阶段</p>
+<p>第一阶段：解析载入HTML文档的内容，并执行&lt;script&gt;元素里的代码（包括内联脚本和外部脚本），通常按其出现顺序执行。除非出现defer、async属性使其成为异步脚本（详情见上面defer、async属性的说明）</p>
+<p>第二阶段：这个阶段是异步的，而且是由事件驱动的（即有用户事件才会发生）。在这个阶段，一旦用户产生事件，浏览器就会调用之前脚本中的事件处理程序函数，来响应异步发生的事件（如鼠标单击，键盘输入。此时对应的事件处理回调函数被放在了任务队列中，详情见第二部分）</p>
+<p>&nbsp;</p>
+<p>我们对这两个阶段再进行详细的划分，形成一条理想的时间线：</p>
+<p>1.Web浏览器创建一个Document对象，并开始解析渲染HTML文档，生成Element对象和Text节点放入文档中。此时，document.readystate的值为&ldquo;loading&rdquo;。</p>
+<p>2.当解析HTML文档过程中遇到没有async和defer属性的脚本时，解析器停止解析文档并开始按顺序对脚本进行解析执行，此时脚本内可以便利和操作脚本之前的文档树。解析完遇到的脚本后则继续文档的解析，以此类推</p>
+<p>3.如果遇到带有async属性的脚本，浏览器会一边下载该脚本一边继续后面文档内容的解析，当脚本下载解析完毕后立即返回解析执行该脚本。</p>
+<p>4.当文档完成解析时，此时document.readystate的值为interactive</p>
+<p>5.然后按照其出现顺序继续解析执行带有defer属性的脚本</p>
+<p>6.所有的文档和脚本加载执行渲染完成后（不包括外部加载的图片多媒体文件等）浏览器触发了Document对象的DOMContentLoaded事件，标志着程序执行从同步脚本执行阶段进入到了异步事件处理事件程序执行阶段。注意此时可能还有异步任务还没执行完成。</p>
+<p>7.此时，文档已经完全解析完成，但是有一些内容还在加载，如图片。当这些内容完全加载并且异步脚本全部载入和执行后，document.readystate的值为&ldquo;complete&rdquo;，并且触发window.onload事件。</p>
+<p>8.此刻起，调用异步事件，以异步响应用户输入事件。</p>
+<p>&nbsp;</p>
+<p>注意：这是一条理想的时间线。DOMContentLoaded事件和document.readystate属性大部分浏览器都支持。defer属性也被大部分浏览器支持。而async在IE9及其之前的版本是不支持的。</p>
+<p>&nbsp;</p>
+
+                <hr>
+
+                
+
+                <ul class="pager">
+                    
+                        <li class="previous">
+                            <a href="/2019/10/13/移动端开发之响应式开发和bootstrap基础/" data-toggle="tooltip" data-placement="top" title="移动端开发之响应式开发和bootstrap基础">&larr; Previous Post</a>
+                        </li>
+                    
+                    
+                        <li class="next">
+                            <a href="/2019/10/07/对于闭包的理解/" data-toggle="tooltip" data-placement="top" title="对于闭包的理解">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                
+
+                
+
+            </div>
+    <!-- Side Catalog Container -->
+        
+
+    <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/bbrucechen">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Bruce&#39;s cave 2019 
+                    <br>
+                    Theme by <a href="http://huangxuan.me" target="_blank" rel="noopener">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    Ported by <a href="http://blog.kaijun.rocks" target="_blank" rel="noopener">Kaijun</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=kaijun&repo=hexo-theme-huxblog&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://www.brucecave.com/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- Side Catalog -->
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="http://www.brucecave.com/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

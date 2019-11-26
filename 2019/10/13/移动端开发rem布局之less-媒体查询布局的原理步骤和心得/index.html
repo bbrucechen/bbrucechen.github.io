@@ -13,11 +13,11 @@
 
     <title>
         
-          简单的实现上传文件进度条 - undefined
+          移动端开发rem布局之less+媒体查询布局的原理步骤和心得 - undefined
         
     </title>
 
-    <link rel="canonical" href="http://www.brucecave.com/2019/10/31/简单的实现上传文件进度条/">
+    <link rel="canonical" href="http://www.brucecave.com/2019/10/13/移动端开发rem布局之less-媒体查询布局的原理步骤和心得/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -142,11 +142,11 @@
                     <div class="tags">
                         
                     </div>
-                    <h1>简单的实现上传文件进度条</h1>
+                    <h1>移动端开发rem布局之less+媒体查询布局的原理步骤和心得</h1>
                     <h2 class="subheading"></h2>
                     <span class="meta">
                         Posted by Bruce Chen on
-                        2019-10-31
+                        2019-10-13
                     </span>
                 </div>
             </div>
@@ -165,55 +165,76 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <p>实现文件上传（即input标签的file类型），可以使用XMLHttpRequest对象中的upload属性的progress事件，该事件的事件对象可以返回上传进度相关数据</p>
-<p>XMLHttpRequestObject.upload.onprogress = function(e){};</p>
-<p>其中e.loaded表示已经上传的数据大小，e.total表示整个文件的大小，用e.loaded除以e.total就可以获取上传的进度</p>
-<p>&nbsp;</p>
-<p>那么该如何实现利用XHR传送表单呢？</p>
-<p>我们可以利用FormData类对象来对form表单快速转化为键值对的构造方式，并将其作为请求主题发送出去</p>
-<p>如下</p>
-<div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">&lt;form&gt;
-        &lt;input type="text" name="username" &gt;
-        &lt;input type="password" name="userpwd" &gt;
-        &lt;input type="file" name="userfile" &gt;
-        &lt;input type="button" value="提交"&gt;
-&lt;/form&gt;
-
-<p>&lt;script&gt;<br>    var form = document.querySelector(“form”);<br>    var formObj = new FormData(form);<br>    var xhr = new XMLHttpRequest();<br>    xhr.open(‘post’,’data.php’);<br>    xhr.send(formObj);<br>&lt;/script&gt;<br></pre></p>
+                <p>rem即是以html文件中font-size的大小的倍数<br />rem布局的原理：通过媒体查询设置不同屏幕宽度下的html的font-size大小，然后在css布局时用rem单位取代px，从而实现页面元素大小的动态适配，做出更漂亮整洁的页面<br />rem布局的好处：<br />1.页面整洁<br />2.动态适配<br />缺点：<br />1.需要计算rem，但可以通过自动转化单位插件弥补</p>
+<p>less：是一门css扩展语言，也成为css预处理器，引入了变量，mixin（混入）、运算以及函数等功能<br />css弊端：1.冗余度高 2.维护成本高 3.没有很好的计算能力<br />less变量定义：@变量名：值；<br />值可以是任意css属性值，如颜色大小<br />注意：1.大小写区分 2.不能以数字开头 3.不能有特殊符号<br />less变量引用，直接输入@变量名即可<br />less嵌套<br />子元素样式直接写到父元素嵌套里<br />例div { a{xxxx} } 代表div a {}； div { &amp;hover {} } 代表div：hover</p>
+<p>less运算<br />less可以使用+ - * / 运算符号<br />颜色大小都可以运算<br />运算符左右必须空格隔开<br />两个数参与运算，只有一个有单位，则结果单位与其相同<br />两个数参与运算，量个数都有单位且不一样，则结果与第一个数的单位相同<br />注:less中可以用@import引入其他less文件 如@import:url(xxxx.less);</p>
+<p>基本步骤：<br />1.首先写一个common.less文件，专门用于媒体查询，其中常用的屏幕大小单位有320px 360px 375px 384px 400px 414px 424px 480px 540px 720px 750px。该文件的作用是设置不同大小屏幕下的font-size大小，其中倍数可以为15或者10，可以设置变量表示方便书写</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;"> 1</span> <span style="color: #008000;">//</span><span style="color: #008000;">利用媒体查询按照同一比例（10或者15）设置不同屏幕尺寸下的font-style大小</span>
+<span style="color: #008080;"> 2</span> <span style="color: #008000;">//</span><span style="color: #008000;">利用@+变量名：变量值  设置变量，提高效率</span>
+<span style="color: #008080;"> 3</span> @no:15<span style="color: #000000;">;
+</span><span style="color: #008080;"> 4</span> @media screen and (min-<span style="color: #000000;">width: 320px) {
+</span><span style="color: #008080;"> 5</span> <span style="color: #000000;">    html {
+</span><span style="color: #008080;"> 6</span>         font-size: 320px /<span style="color: #000000;"> @no;
+</span><span style="color: #008080;"> 7</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;"> 8</span> <span style="color: #000000;">}
+</span><span style="color: #008080;"> 9</span> @media screen and (min-<span style="color: #000000;">width: 360px) {
+</span><span style="color: #008080;">10</span> <span style="color: #000000;">    html {
+</span><span style="color: #008080;">11</span>         font-size: 360px /<span style="color: #000000;"> @no;
+</span><span style="color: #008080;">12</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">13</span> <span style="color: #000000;">}
+</span><span style="color: #008080;">14</span> @media screen and (min-<span style="color: #000000;">width: 375px) {
+</span><span style="color: #008080;">15</span> <span style="color: #000000;">    html {
+</span><span style="color: #008080;">16</span>         font-size: 375px /<span style="color: #000000;"> @no;
+</span><span style="color: #008080;">17</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">18</span> <span style="color: #000000;">}
+</span><span style="color: #008080;">19</span> @media screen and (min-<span style="color: #000000;">width: 384px) {
+</span><span style="color: #008080;">20</span> <span style="color: #000000;">    html {
+</span><span style="color: #008080;">21</span>         font-size: 384px /<span style="color: #000000;"> @no;
+</span><span style="color: #008080;">22</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">23</span> <span style="color: #000000;">}
+</span><span style="color: #008080;">24</span> @media screen and (min-<span style="color: #000000;">width: 400px) {
+</span><span style="color: #008080;">25</span> <span style="color: #000000;">    html {
+</span><span style="color: #008080;">26</span>         font-size: 400px /<span style="color: #000000;"> @no;
+</span><span style="color: #008080;">27</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">28</span> <span style="color: #000000;">}
+</span><span style="color: #008080;">29</span> @media screen and (min-<span style="color: #000000;">width: 414px) {
+</span><span style="color: #008080;">30</span> <span style="color: #000000;">    html {
+</span><span style="color: #008080;">31</span>         font-size: 414px /<span style="color: #000000;"> @no;
+</span><span style="color: #008080;">32</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">33</span> <span style="color: #000000;">}
+</span><span style="color: #008080;">34</span> @media screen and (min-<span style="color: #000000;">width: 424px) {
+</span><span style="color: #008080;">35</span> <span style="color: #000000;">    html {
+</span><span style="color: #008080;">36</span>         font-size: 424px /<span style="color: #000000;"> @no;
+</span><span style="color: #008080;">37</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">38</span> <span style="color: #000000;">}
+</span><span style="color: #008080;">39</span> @media screen and (min-<span style="color: #000000;">width: 480px) {
+</span><span style="color: #008080;">40</span> <span style="color: #000000;">    html {
+</span><span style="color: #008080;">41</span>         font-size: 480px /<span style="color: #000000;"> @no;
+</span><span style="color: #008080;">42</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">43</span> <span style="color: #000000;">}
+</span><span style="color: #008080;">44</span> @media screen and (min-<span style="color: #000000;">width: 540px) {
+</span><span style="color: #008080;">45</span> <span style="color: #000000;">    html {
+</span><span style="color: #008080;">46</span>         font-size: 540px /<span style="color: #000000;"> @no;
+</span><span style="color: #008080;">47</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">48</span> <span style="color: #000000;">}
+</span><span style="color: #008080;">49</span> @media screen and (min-<span style="color: #000000;">width: 720px) {
+</span><span style="color: #008080;">50</span> <span style="color: #000000;">    html {
+</span><span style="color: #008080;">51</span>         font-size: 720px /<span style="color: #000000;"> @no;
+</span><span style="color: #008080;">52</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">53</span> <span style="color: #000000;">}
+</span><span style="color: #008080;">54</span> @media screen and (min-<span style="color: #000000;">width: 750px) {
+</span><span style="color: #008080;">55</span> <span style="color: #000000;">    html {
+</span><span style="color: #008080;">56</span>         font-size: 750px /<span style="color: #000000;"> @no;
+</span><span style="color: #008080;">57</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">58</span> }</pre>
 </div>
-<p>由于FormData对象已经将form表单数据转化好，所以不再用设置请求头了，此时在服务器端就可以通过表单元素的name属性值获取表单值</p>
-<p>&nbsp;</p>
-<p>综上所述，我们通过以下代码实现简单的文件上传进度条</p>
-<div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">&lt;!DOCTYPE html&gt;
-&lt;html lang="en"&gt;
-&lt;head&gt;
-    &lt;meta charset="UTF-8"&gt;
-    &lt;title&gt;Document&lt;/title&gt;
-    &lt;style type="text/css" media="screen"&gt;
-        .outer {
-            width:400px;
-            height:30px;
-            border: 1px solid #000;
-            box-sizing: border-box;
-        }
-        .inner {
-            width:0px;
-            height:28px;
-            background-color: yellowgreen;
-
-<pre><code>    }
-&amp;lt;/style&amp;gt;</code></pre><p>&lt;/head&gt;<br>&lt;body&gt;<br>    &lt;form&gt;<br>        &lt;input type=”text” name=”username” &gt;<br>        &lt;input type=”password” name=”userpwd” &gt;<br>        &lt;input type=”file” name=”userfile” &gt;<br>        &lt;input type=”button” value=”提交”&gt;<br>    &lt;/form&gt;<br>    &lt;!– 进度条外壳 –&gt;<br>    &lt;div class=”outer”&gt;<br>        &lt;!– 进度条 –&gt;<br>        &lt;div class=”inner”&gt;&lt;/div&gt;<br>    &lt;/div&gt;<br>    &lt;script type=”text/javascript”&gt;<br>        // 获取form表单<br>        var form = document.querySelector(“form”);<br>        // 获取提交键<br>        var submit = document.querySelector(“input[type=button]”);<br>        // 获取进度条<br>        var inner = document.querySelector(“.inner”);<br>        // 为提交键设置事件<br>        submit.onclick = function(){<br>            // 利用FormData快速格式化form表单<br>            var formObj = new FormData(form);<br>            // 创建xhr对象<br>            var xhr = new XMLHttpRequest();<br>            // 设置上传方式和网址<br>            xhr.open(‘post’,’data.php’);<br>            // 因为FormData已经格式化好了，所以不用设置请求头了<br>            // xhr.setRequestHeader(“Content-type”,”application/x-www-form-urlencoded”);<br>            // 每当上传进度变化时就触发progress事件，改变进度条长度<br>            xhr.upload.onprogress = function(e){<br>                // 398为进度条最大长度<br>                inner.style.width = ((e.loaded / e.total) * 398) + ‘px’;<br>            }<br>            // 发送请求，将格式化后的form表单作为发送主体<br>            xhr.send(formObj);<br>        }<br>    &lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;<br></pre></p>
+<p>2.然后再写样式less文件，注意要先设置好当前测量页面的font-size大小，因为我们是根据某个页面来测量元素大小，所以要根据这个页面先设置好当前的rem倍数的变量，如750/15 =50.同时设置好页面的最小宽度320px。书写样式时，大部分px单位都需要转为rem，可以通过运算符或者插件表示。<br />切记通过import引入媒体查询文件，否则页面动态适配无法生效</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;">1</span> <span style="color: #000000;">@import:url(common.css)
+</span><span style="color: #008080;">2</span> @baseFont: 50;</pre>
 </div>
-<p>　　步骤总结：</p>
-<ol>
-<li>将包含有file类型的表单通过FormData构造函数格式化</li>
-<li>创建XMLHttpRequest对象并设置发送方式（post）和请求网址</li>
-<li>设置上传进度事件，利用其事件对象获取上传进度百分比并改变进度条长度</li>
-<li>发送请求主题</li>
-</ol>
-<p>&nbsp;</p>
+<p>总结：rem布局的灵魂在于通过媒体查询动态修改font-size，再利用rem与其链接达到动态适配的效果。所以重点是媒体查询的书写以及元素大小单位的书写，而利用less可以轻松实现计算，当然也可以利用阿里巴巴的flexible.js省略媒体查询一步，从而不需要less扩展语言。</p>]
 
                 <hr>
 
@@ -222,12 +243,12 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/2019/11/11/对于Node中Express框架的中间件概念的感知/" data-toggle="tooltip" data-placement="top" title="对于Node中Express框架的中间件概念的感知">&larr; Previous Post</a>
+                            <a href="/2019/10/31/简单的实现上传文件进度条/" data-toggle="tooltip" data-placement="top" title="简单的实现上传文件进度条">&larr; Previous Post</a>
                         </li>
                     
                     
                         <li class="next">
-                            <a href="/2019/10/13/移动端开发rem布局之less-媒体查询布局的原理步骤和心得/" data-toggle="tooltip" data-placement="top" title="移动端开发rem布局之less+媒体查询布局的原理步骤和心得">Next Post &rarr;</a>
+                            <a href="/2019/10/13/移动端开发之响应式开发和bootstrap基础/" data-toggle="tooltip" data-placement="top" title="移动端开发之响应式开发和bootstrap基础">Next Post &rarr;</a>
                         </li>
                     
                 </ul>

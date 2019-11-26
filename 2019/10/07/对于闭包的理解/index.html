@@ -13,11 +13,11 @@
 
     <title>
         
-          简单的实现上传文件进度条 - undefined
+          对于闭包的理解 - undefined
         
     </title>
 
-    <link rel="canonical" href="http://www.brucecave.com/2019/10/31/简单的实现上传文件进度条/">
+    <link rel="canonical" href="http://www.brucecave.com/2019/10/07/对于闭包的理解/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -142,11 +142,11 @@
                     <div class="tags">
                         
                     </div>
-                    <h1>简单的实现上传文件进度条</h1>
+                    <h1>对于闭包的理解</h1>
                     <h2 class="subheading"></h2>
                     <span class="meta">
                         Posted by Bruce Chen on
-                        2019-10-31
+                        2019-10-07
                     </span>
                 </div>
             </div>
@@ -165,55 +165,40 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <p>实现文件上传（即input标签的file类型），可以使用XMLHttpRequest对象中的upload属性的progress事件，该事件的事件对象可以返回上传进度相关数据</p>
-<p>XMLHttpRequestObject.upload.onprogress = function(e){};</p>
-<p>其中e.loaded表示已经上传的数据大小，e.total表示整个文件的大小，用e.loaded除以e.total就可以获取上传的进度</p>
+                <p>---恢复内容开始---</p>
+<p>首先得从词法作用域说起</p>
+<p><strong>词法作用域就是函数是通过词法区分作用域的。是在定义的位置执行的，而不是在调用的位置执行的。</strong></p>
 <p>&nbsp;</p>
-<p>那么该如何实现利用XHR传送表单呢？</p>
-<p>我们可以利用FormData类对象来对form表单快速转化为键值对的构造方式，并将其作为请求主题发送出去</p>
-<p>如下</p>
-<div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">&lt;form&gt;
-        &lt;input type="text" name="username" &gt;
-        &lt;input type="password" name="userpwd" &gt;
-        &lt;input type="file" name="userfile" &gt;
-        &lt;input type="button" value="提交"&gt;
-&lt;/form&gt;
-
-<p>&lt;script&gt;<br>    var form = document.querySelector(“form”);<br>    var formObj = new FormData(form);<br>    var xhr = new XMLHttpRequest();<br>    xhr.open(‘post’,’data.php’);<br>    xhr.send(formObj);<br>&lt;/script&gt;<br></pre></p>
+<p>调用对象和全局对象</p>
+<p>调用一个函数时，会将其作用域设置为其起作用的作用域链，并且在该作用域链前添加一个调用对象。</p>
+<p>&nbsp;</p>
+<p>作为闭包的嵌入函数</p>
+<p>想象一个嵌套在函数f里的函数g，f被调用时，其作用域包含了对f这一调用的调用对象，后边是全局对象。而当g被调用时，因为要回到f中定义g的位置，而g只有f调用时会被定义，也就是f的调用对象是g的定义位置的一部分。。所以g的作用域链包含了<strong>g的调用对象、f的调用对象、全局对象</strong></p>
+<p>&nbsp;</p>
+<p>考虑下列代码</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;"> 1</span> <span style="color: #0000ff;">var</span> x = 0<span style="color: #000000;">;
+</span><span style="color: #008080;"> 2</span><span style="color: #0000ff;">function</span><span style="color: #000000;"> outer() {
+</span><span style="color: #008080;"> 3</span>             x++<span style="color: #000000;">;
+</span><span style="color: #008080;"> 4</span>             <span style="color: #0000ff;">if</span>(x == 1<span style="color: #000000;">) {
+</span><span style="color: #008080;"> 5</span>                 <span style="color: #0000ff;">function</span><span style="color: #000000;"> inner() {
+</span><span style="color: #008080;"> 6</span> <span style="color: #000000;">                    console.log(x);
+</span><span style="color: #008080;"> 7</span> <span style="color: #000000;">                }
+</span><span style="color: #008080;"> 8</span>                 <span style="color: #0000ff;">return</span><span style="color: #000000;"> inner;
+</span><span style="color: #008080;"> 9</span> <span style="color: #000000;">            }
+</span><span style="color: #008080;">10</span><span style="color: #000000;">}
+</span><span style="color: #008080;">11</span> 
+<span style="color: #008080;">12</span>         <span style="color: #0000ff;">var</span> inner =<span style="color: #000000;"> outer();
+</span><span style="color: #008080;">13</span>         inner();</pre>
 </div>
-<p>由于FormData对象已经将form表单数据转化好，所以不再用设置请求头了，此时在服务器端就可以通过表单元素的name属性值获取表单值</p>
+<p>为什么能返回1</p>
+<p>将outer函数调用并赋予inner，也就是outer中的inner函数给了inner变量，然后调用inner变量，调用后会回到第5行定义inner函数的地方，由于inner的定义是outer调用时执行的，那么outer的调用对象就是定义的位置的一部分，也同时包含了x++语句，即当时定义时的外围的变量的值都是保留着的。此时的x=1，inner函数执行其中语句，开始顺着作用域寻找x的值，找到第3行发现x为1，于是输出打印1.</p>
 <p>&nbsp;</p>
-<p>综上所述，我们通过以下代码实现简单的文件上传进度条</p>
-<div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">&lt;!DOCTYPE html&gt;
-&lt;html lang="en"&gt;
-&lt;head&gt;
-    &lt;meta charset="UTF-8"&gt;
-    &lt;title&gt;Document&lt;/title&gt;
-    &lt;style type="text/css" media="screen"&gt;
-        .outer {
-            width:400px;
-            height:30px;
-            border: 1px solid #000;
-            box-sizing: border-box;
-        }
-        .inner {
-            width:0px;
-            height:28px;
-            background-color: yellowgreen;
-
-<pre><code>    }
-&amp;lt;/style&amp;gt;</code></pre><p>&lt;/head&gt;<br>&lt;body&gt;<br>    &lt;form&gt;<br>        &lt;input type=”text” name=”username” &gt;<br>        &lt;input type=”password” name=”userpwd” &gt;<br>        &lt;input type=”file” name=”userfile” &gt;<br>        &lt;input type=”button” value=”提交”&gt;<br>    &lt;/form&gt;<br>    &lt;!– 进度条外壳 –&gt;<br>    &lt;div class=”outer”&gt;<br>        &lt;!– 进度条 –&gt;<br>        &lt;div class=”inner”&gt;&lt;/div&gt;<br>    &lt;/div&gt;<br>    &lt;script type=”text/javascript”&gt;<br>        // 获取form表单<br>        var form = document.querySelector(“form”);<br>        // 获取提交键<br>        var submit = document.querySelector(“input[type=button]”);<br>        // 获取进度条<br>        var inner = document.querySelector(“.inner”);<br>        // 为提交键设置事件<br>        submit.onclick = function(){<br>            // 利用FormData快速格式化form表单<br>            var formObj = new FormData(form);<br>            // 创建xhr对象<br>            var xhr = new XMLHttpRequest();<br>            // 设置上传方式和网址<br>            xhr.open(‘post’,’data.php’);<br>            // 因为FormData已经格式化好了，所以不用设置请求头了<br>            // xhr.setRequestHeader(“Content-type”,”application/x-www-form-urlencoded”);<br>            // 每当上传进度变化时就触发progress事件，改变进度条长度<br>            xhr.upload.onprogress = function(e){<br>                // 398为进度条最大长度<br>                inner.style.width = ((e.loaded / e.total) * 398) + ‘px’;<br>            }<br>            // 发送请求，将格式化后的form表单作为发送主体<br>            xhr.send(formObj);<br>        }<br>    &lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;<br></pre></p>
-</div>
-<p>　　步骤总结：</p>
-<ol>
-<li>将包含有file类型的表单通过FormData构造函数格式化</li>
-<li>创建XMLHttpRequest对象并设置发送方式（post）和请求网址</li>
-<li>设置上传进度事件，利用其事件对象获取上传进度百分比并改变进度条长度</li>
-<li>发送请求主题</li>
-</ol>
+<p>总结：</p>
+<p><strong>闭包虽然是个名词，在javascript中将其描述为将要执行的代码以及这些代码的作用域构成的一个综合体，这个综合体叫做闭包。所有的js函数都叫闭包</strong></p>
+<p><strong>但是只有一个函数被导出到它所定义的作用域外时，这种技术才有研究的意义，所以一般都将闭包称为一种一个作用域能够调用读取另一个函数中的变量的现象</strong></p>
 <p>&nbsp;</p>
+<p>---恢复内容结束---</p>
 
                 <hr>
 
@@ -222,12 +207,12 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/2019/11/11/对于Node中Express框架的中间件概念的感知/" data-toggle="tooltip" data-placement="top" title="对于Node中Express框架的中间件概念的感知">&larr; Previous Post</a>
+                            <a href="/2019/10/10/浅谈个人对客户端JavaScript同步、异步、执行顺序等概念的理解/" data-toggle="tooltip" data-placement="top" title="浅谈个人对客户端JavaScript同步、异步、执行顺序等概念的理解">&larr; Previous Post</a>
                         </li>
                     
                     
                         <li class="next">
-                            <a href="/2019/10/13/移动端开发rem布局之less-媒体查询布局的原理步骤和心得/" data-toggle="tooltip" data-placement="top" title="移动端开发rem布局之less+媒体查询布局的原理步骤和心得">Next Post &rarr;</a>
+                            <a href="/2019/06/26/Video-audio标签的一些基础使用心得/" data-toggle="tooltip" data-placement="top" title="Video/audio标签的一些基础使用心得">Next Post &rarr;</a>
                         </li>
                     
                 </ul>

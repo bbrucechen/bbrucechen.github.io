@@ -13,11 +13,11 @@
 
     <title>
         
-          简单的实现上传文件进度条 - undefined
+          Video/audio标签的一些基础使用心得 - undefined
         
     </title>
 
-    <link rel="canonical" href="http://www.brucecave.com/2019/10/31/简单的实现上传文件进度条/">
+    <link rel="canonical" href="http://www.brucecave.com/2019/06/26/Video-audio标签的一些基础使用心得/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -141,12 +141,14 @@
                 <div class="post-heading">
                     <div class="tags">
                         
+                          <a class="tag" href="/tags/#HTML5+JS" title="HTML5+JS">HTML5+JS</a>
+                        
                     </div>
-                    <h1>简单的实现上传文件进度条</h1>
+                    <h1>Video/audio标签的一些基础使用心得</h1>
                     <h2 class="subheading"></h2>
                     <span class="meta">
                         Posted by Bruce Chen on
-                        2019-10-31
+                        2019-06-26
                     </span>
                 </div>
             </div>
@@ -165,54 +167,117 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <p>实现文件上传（即input标签的file类型），可以使用XMLHttpRequest对象中的upload属性的progress事件，该事件的事件对象可以返回上传进度相关数据</p>
-<p>XMLHttpRequestObject.upload.onprogress = function(e){};</p>
-<p>其中e.loaded表示已经上传的数据大小，e.total表示整个文件的大小，用e.loaded除以e.total就可以获取上传的进度</p>
+                <p>常用方法</p>
+<p>.play（）：用于音频视频的播放</p>
+<p>.pause（）：用于音频视频的暂停</p>
 <p>&nbsp;</p>
-<p>那么该如何实现利用XHR传送表单呢？</p>
-<p>我们可以利用FormData类对象来对form表单快速转化为键值对的构造方式，并将其作为请求主题发送出去</p>
-<p>如下</p>
-<div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">&lt;form&gt;
-        &lt;input type="text" name="username" &gt;
-        &lt;input type="password" name="userpwd" &gt;
-        &lt;input type="file" name="userfile" &gt;
-        &lt;input type="button" value="提交"&gt;
-&lt;/form&gt;
-
-<p>&lt;script&gt;<br>    var form = document.querySelector(“form”);<br>    var formObj = new FormData(form);<br>    var xhr = new XMLHttpRequest();<br>    xhr.open(‘post’,’data.php’);<br>    xhr.send(formObj);<br>&lt;/script&gt;<br></pre></p>
+<p>常用属性</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;">1</span> &lt;audio src="Batmobile Battle Mode Reveal Music.mp3" autobuffer autoplay loop controls &gt;&lt;/audio&gt;</pre>
 </div>
-<p>由于FormData对象已经将form表单数据转化好，所以不再用设置请求头了，此时在服务器端就可以通过表单元素的name属性值获取表单值</p>
+<p>durantion：获取目标标签的音频视频文件的时长</p>
+<p>loop：设置是否循环播放，有这个标签就循环播放</p>
+<p>control：设置是否显示控制组件，有这个标签就显示</p>
+<p>src：设置文件路径，可以为blob路径，也可以为base64路径，也可以为绝对路径</p>
+<p>currentTime：获取或设置当前音频视频文件的播放时间</p>
+<p>autoplay：设置是否自动播放，如果有该属性则打开页面时就自动播放</p>
+<p>autobuffer：设置文件播放前是否自动缓存</p>
 <p>&nbsp;</p>
-<p>综上所述，我们通过以下代码实现简单的文件上传进度条</p>
-<div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">&lt;!DOCTYPE html&gt;
-&lt;html lang="en"&gt;
-&lt;head&gt;
-    &lt;meta charset="UTF-8"&gt;
-    &lt;title&gt;Document&lt;/title&gt;
-    &lt;style type="text/css" media="screen"&gt;
-        .outer {
-            width:400px;
-            height:30px;
-            border: 1px solid #000;
-            box-sizing: border-box;
-        }
-        .inner {
-            width:0px;
-            height:28px;
-            background-color: yellowgreen;
-
-<pre><code>    }
-&amp;lt;/style&amp;gt;</code></pre><p>&lt;/head&gt;<br>&lt;body&gt;<br>    &lt;form&gt;<br>        &lt;input type=”text” name=”username” &gt;<br>        &lt;input type=”password” name=”userpwd” &gt;<br>        &lt;input type=”file” name=”userfile” &gt;<br>        &lt;input type=”button” value=”提交”&gt;<br>    &lt;/form&gt;<br>    &lt;!– 进度条外壳 –&gt;<br>    &lt;div class=”outer”&gt;<br>        &lt;!– 进度条 –&gt;<br>        &lt;div class=”inner”&gt;&lt;/div&gt;<br>    &lt;/div&gt;<br>    &lt;script type=”text/javascript”&gt;<br>        // 获取form表单<br>        var form = document.querySelector(“form”);<br>        // 获取提交键<br>        var submit = document.querySelector(“input[type=button]”);<br>        // 获取进度条<br>        var inner = document.querySelector(“.inner”);<br>        // 为提交键设置事件<br>        submit.onclick = function(){<br>            // 利用FormData快速格式化form表单<br>            var formObj = new FormData(form);<br>            // 创建xhr对象<br>            var xhr = new XMLHttpRequest();<br>            // 设置上传方式和网址<br>            xhr.open(‘post’,’data.php’);<br>            // 因为FormData已经格式化好了，所以不用设置请求头了<br>            // xhr.setRequestHeader(“Content-type”,”application/x-www-form-urlencoded”);<br>            // 每当上传进度变化时就触发progress事件，改变进度条长度<br>            xhr.upload.onprogress = function(e){<br>                // 398为进度条最大长度<br>                inner.style.width = ((e.loaded / e.total) * 398) + ‘px’;<br>            }<br>            // 发送请求，将格式化后的form表单作为发送主体<br>            xhr.send(formObj);<br>        }<br>    &lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;<br></pre></p>
+<p>常用事件</p>
+<p>onloadstart：文件开始加载时触发</p>
+<p>oncanplay：文件加载完成可以播放时触发</p>
+<p>ondurationchange：文件时长发生变化时触发</p>
+<p>onended：文件播放结束时触发</p>
+<p>onplay：文件播放时触发</p>
+<p>ontimeupdate：文件当前播放时间（即currentTime属性）发生变化时触发</p>
+<p>&nbsp;</p>
+<p>some tips：</p>
+<p>一、duration的获取</p>
+<div class="cnblogs_code">
+<p>1.$("audio")[0].oncanplay = function(){<br />            　　console.log($(this)[0].duration);<br />        }</p>
+<p>2.$("audio")[0].ondurationchange = function(){<br />            console.log($(this)[0].duration);<br />        }</p>
+<pre><span style="color: #000000;">3、console.log($(</span>"audio")[0].duration);</pre>
 </div>
-<p>　　步骤总结：</p>
-<ol>
-<li>将包含有file类型的表单通过FormData构造函数格式化</li>
-<li>创建XMLHttpRequest对象并设置发送方式（post）和请求网址</li>
-<li>设置上传进度事件，利用其事件对象获取上传进度百分比并改变进度条长度</li>
-<li>发送请求主题</li>
-</ol>
+<p>第三句无法获得duration，<strong>duration获取必须在文件加载完成后才能获取</strong>。1,2都能获取。所以duration一般会和oncanplay、ondurationchange搭配使用</p>
+<p>&nbsp;</p>
+<p>二、事件都是异步的</p>
+<p>上面代码中，首先打印出来的是NaN，因为上面事件的完成需要一定时间，也就是关于duration的获取和渲染到标签中最好是在加载事件中完成，如</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;">1</span> $("audio")[0].oncanplay = <span style="color: #0000ff;">function</span><span style="color: #000000;">(){
+</span><span style="color: #008080;">2</span>             $("textarea").val($(<span style="color: #0000ff;">this</span>)[0<span style="color: #000000;">].duration);
+</span><span style="color: #008080;">3</span>         }</pre>
+</div>
+<p>而不是</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;">1</span> <span style="color: #0000ff;">var</span><span style="color: #000000;"> time;
+</span><span style="color: #008080;">2</span> $("audio")[0].oncanplay = <span style="color: #0000ff;">function</span><span style="color: #000000;">(){
+</span><span style="color: #008080;">3</span>         time  = $(<span style="color: #0000ff;">this</span>)[0<span style="color: #000000;">].duration;    
+</span><span style="color: #008080;">4</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">5</span> $("textarea").val(time); //内容为NaN</pre>
+</div>
+<p>&nbsp;</p>
+<p>三、durationchange的用法</p>
+<p>durationchange虽然是时长改变时触发，但是根据以下代码：</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;">1&lt;audio src="Batmobile Battle Mode Reveal Music.mp3" autobuffer autoloop loop controls &gt;&lt;/audio&gt;<br /><br /></span> $("audio")[0].ondurationchange = <span style="color: #0000ff;">function</span><span style="color: #000000;">(){
+</span><span style="color: #008080;">2</span>             alert(1<span style="color: #000000;">);
+</span><span style="color: #008080;">3</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">4</span> setTimeout(<span style="color: #0000ff;">function</span><span style="color: #000000;">(){
+</span><span style="color: #008080;">5</span>             $("audio")[0].src = "Batmobile Battle Mode Reveal Music.mp3"<span style="color: #000000;">;
+</span><span style="color: #008080;">6</span>         },3000);</pre>
+</div>
+<p>可以输出两次1，也就是说只要只要文件重新加载，即便是同个文件，同样的时长，也会触发该事件</p>
+<p>&nbsp;</p>
+<p>四、通过input里的file表单上传多媒体文件给多媒体标签</p>
+<p>想到的方法及其可行性</p>
+<p>1.利用jquery的val属性直接获取地址</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;">1</span> &lt;input type="file" name="" id=""&gt;
+<span style="color: #008080;">2</span>     &lt;script type="text/javascript"&gt;
+<span style="color: #008080;">3</span>         <span style="color: #0000ff;">var</span> input = document.querySelector("input"<span style="color: #000000;">);
+</span><span style="color: #008080;">4</span>         input.onchange = <span style="color: #0000ff;">function</span><span style="color: #000000;">(){
+</span><span style="color: #008080;">5</span>             console.log($(<span style="color: #0000ff;">this</span><span style="color: #000000;">).val());
+</span><span style="color: #008080;">6</span> <span style="color: #000000;">        }    
+</span><span style="color: #008080;">7</span>     &lt;/script&gt;</pre>
+</div>
+<p>获得的结果是格式为&nbsp; 储存盘：\fakepath\文件名称.格式</p>
+<p>因为浏览器出于安全原因不允许直接获取本地文件，所以获得是屏蔽了真实地址的假地址，所以该方法不可行</p>
+<p>&nbsp;</p>
+<p>2.利用FileReader对象获取</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;"> 1</span> &lt;input type="file" name="" id=""&gt;
+<span style="color: #008080;"> 2</span>     &lt;script type="text/javascript"&gt;
+<span style="color: #008080;"> 3</span>         $("input")[0].onchange = <span style="color: #0000ff;">function</span><span style="color: #000000;">(){
+</span><span style="color: #008080;"> 4</span>             <span style="color: #0000ff;">var</span> reader = <span style="color: #0000ff;">new</span><span style="color: #000000;"> FileReader();
+</span><span style="color: #008080;"> 5</span>             reader.readAsDataURL(<span style="color: #0000ff;">this</span>.files[0<span style="color: #000000;">]);
+</span><span style="color: #008080;"> 6</span>             reader.onload = <span style="color: #0000ff;">function</span><span style="color: #000000;">(){
+</span><span style="color: #008080;"> 7</span> <span style="color: #000000;">                console.log(reader.result);
+</span><span style="color: #008080;"> 8</span> <span style="color: #000000;">            }
+</span><span style="color: #008080;"> 9</span>             
+<span style="color: #008080;">10</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">11</span>     &lt;/script&gt;</pre>
+</div>
+<p>可以获取文件地址base64形式（不是很了解），但是长度过长，由于是想利用localStoragr储存，储存不了太长，所以不可行</p>
+<p>&nbsp;</p>
+<p>3.利用window.URL.createObjectURL()获取</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;">1</span> &lt;input type="file" name=""&gt;
+<span style="color: #008080;">2</span>     &lt;script type="text/javascript"&gt;
+<span style="color: #008080;">3</span>         $("input")[0].onchange = <span style="color: #0000ff;">function</span><span style="color: #000000;">(){
+</span><span style="color: #008080;">4</span>             <span style="color: #0000ff;">var</span> url = window.URL.createObjectURL($(<span style="color: #0000ff;">this</span>)[0].files[0<span style="color: #000000;">]);
+</span><span style="color: #008080;">5</span> <span style="color: #000000;">            console.log(url);
+</span><span style="color: #008080;">6</span> <span style="color: #000000;">        }
+</span><span style="color: #008080;">7</span>     &lt;/script&gt;</pre>
+</div>
+<p>获得的是blob形式的地址，但是每次重启浏览器后的通个文件的blob的值是不一样的，所以无法实现长久储存的效果，不可行</p>
+<p>&nbsp;</p>
+<p>4.利用浏览器会在标签的地址前面自动补全当前js文件所连接的html文件的文件路径的原理</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;">1</span> <span style="color: #0000ff;">var</span> url = "uploadMusic/" + <span style="color: #0000ff;">this</span>.files[0].name;</pre>
+</div>
+<p>直接将地址写为html所在文件的该文件所在的子文件加名字即可，局限性：音频视频必须放在html同个文件夹中</p>
+<p>&nbsp;</p>
+<p>总结：浏览器保存本地文件的想法不可行，因为浏览器要防止网页恶意读取用户客户端文件，没有意义，玩玩还行</p>
 <p>&nbsp;</p>
 
                 <hr>
@@ -222,13 +287,9 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/2019/11/11/对于Node中Express框架的中间件概念的感知/" data-toggle="tooltip" data-placement="top" title="对于Node中Express框架的中间件概念的感知">&larr; Previous Post</a>
+                            <a href="/2019/10/07/对于闭包的理解/" data-toggle="tooltip" data-placement="top" title="对于闭包的理解">&larr; Previous Post</a>
                         </li>
                     
-                    
-                        <li class="next">
-                            <a href="/2019/10/13/移动端开发rem布局之less-媒体查询布局的原理步骤和心得/" data-toggle="tooltip" data-placement="top" title="移动端开发rem布局之less+媒体查询布局的原理步骤和心得">Next Post &rarr;</a>
-                        </li>
                     
                 </ul>
 

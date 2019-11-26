@@ -13,11 +13,11 @@
 
     <title>
         
-          简单的实现上传文件进度条 - undefined
+          移动端开发之响应式开发和bootstrap基础 - undefined
         
     </title>
 
-    <link rel="canonical" href="http://www.brucecave.com/2019/10/31/简单的实现上传文件进度条/">
+    <link rel="canonical" href="http://www.brucecave.com/2019/10/13/移动端开发之响应式开发和bootstrap基础/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -142,11 +142,11 @@
                     <div class="tags">
                         
                     </div>
-                    <h1>简单的实现上传文件进度条</h1>
+                    <h1>移动端开发之响应式开发和bootstrap基础</h1>
                     <h2 class="subheading"></h2>
                     <span class="meta">
                         Posted by Bruce Chen on
-                        2019-10-31
+                        2019-10-13
                     </span>
                 </div>
             </div>
@@ -165,55 +165,85 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <p>实现文件上传（即input标签的file类型），可以使用XMLHttpRequest对象中的upload属性的progress事件，该事件的事件对象可以返回上传进度相关数据</p>
-<p>XMLHttpRequestObject.upload.onprogress = function(e){};</p>
-<p>其中e.loaded表示已经上传的数据大小，e.total表示整个文件的大小，用e.loaded除以e.total就可以获取上传的进度</p>
+                <h2>响应式开发</h2>
+<p>（就是利用媒体查询针对不同宽度的设备进行布局和样式的设置，从而设配不同设备的目的）</p>
+<p><img src="https://img2018.cnblogs.com/blog/1824968/201910/1824968-20191013202728296-818560513.jpg" alt="" /></p>
 <p>&nbsp;</p>
-<p>那么该如何实现利用XHR传送表单呢？</p>
-<p>我们可以利用FormData类对象来对form表单快速转化为键值对的构造方式，并将其作为请求主题发送出去</p>
-<p>如下</p>
-<div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">&lt;form&gt;
-        &lt;input type="text" name="username" &gt;
-        &lt;input type="password" name="userpwd" &gt;
-        &lt;input type="file" name="userfile" &gt;
-        &lt;input type="button" value="提交"&gt;
-&lt;/form&gt;
-
-<p>&lt;script&gt;<br>    var form = document.querySelector(“form”);<br>    var formObj = new FormData(form);<br>    var xhr = new XMLHttpRequest();<br>    xhr.open(‘post’,’data.php’);<br>    xhr.send(formObj);<br>&lt;/script&gt;<br></pre></p>
+<p>响应式布局容器<br />响应式需要一个父级作为布局容器，来配合子级元素来实现变化效果</p>
+<p>原理：不同屏幕下，通过媒体查询来改变这个布局容器的大小，再改变里面子元素的排列方式和大小，从而实现不同屏幕下，看到不同的页面布局和样式变化</p>
+<p><img src="https://img2018.cnblogs.com/blog/1824968/201910/1824968-20191013202805741-1631765117.jpg" alt="" /></p>
+<p>&nbsp;</p>
+<p>Bootstrap的基本使用**<br />Bootstrap使用方式<br />1.创建文件夹结构（html、css、js、图片、boorstrap库等）<br />2.创建html骨架<br />3.引入相关样式文件<br />4.书写内容</p>
+<p>Bootstrap的布局容器<br />一.container<br />特点<br />1.响应式布局（宽度固定）<br />2.大屏（&gt;=1200px）设置为1170px<br />3.中屏（&gt;=992px）设置为970px<br />4.小屏（&gt;=768px）设置为750px<br />5.超小屏（&lt;=768px） 设置为100%</p>
+<p>二.container-fluid<br />特点：<br />1.流式布局容器 宽度百分百<br />2.占据全部视口的宽度<br />3.适用于单独移动端开发</p>
+<p>栅格系统（将页面布局划分为等宽的列，然后通过列数的定义来模块化页面布局）<br />bootstrap 将container分为最多12等份</p>
+<p>栅格系统的使用<br />通过一系列的行和列的组合来创建页面布局<br /><img src="https://img2018.cnblogs.com/blog/1824968/201910/1824968-20191013202843773-851575636.jpg" alt="" /></p>
+<p>1.先写行（row），再把列（col）放到其中，row必须放到container中<br />2.必须添加类前缀<br />3.col-xs 超小 col-sm 小 co-md 中等 col-lg 大<br />4.如果孩子分数相加小于12 则占不满整个container<br />5.如果孩子分数相加大于12 则另起一行显示<br />6.每一列默认有左右15px的padding<br />7.可以对一行同时设置多个类名<br />8.bootstrap是通过类名来设置样式的 如通过类名添加对应小图标</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;"> 1</span> &lt;div class="container"&gt;
+<span style="color: #008080;"> 2</span>         &lt;div class="row"&gt;
+<span style="color: #008080;"> 3</span>             &lt;div class="col-lg-3"&gt;1&lt;/div&gt;
+<span style="color: #008080;"> 4</span>             &lt;div class="col-lg-3"&gt;2&lt;/div&gt;
+<span style="color: #008080;"> 5</span>             &lt;div class="col-lg-3"&gt;3&lt;/div&gt;
+<span style="color: #008080;"> 6</span>             &lt;div class="col-lg-3"&gt;4&lt;/div&gt;
+<span style="color: #008080;"> 7</span>         &lt;/div&gt;
+<span style="color: #008080;"> 8</span>         &lt;!-- 如果孩子分数相加小于12 则占不满整个container --&gt;
+<span style="color: #008080;"> 9</span>         &lt;div class="row"&gt;
+<span style="color: #008080;">10</span>             &lt;div class="col-lg-3"&gt;1&lt;/div&gt;
+<span style="color: #008080;">11</span>             &lt;div class="col-lg-3"&gt;2&lt;/div&gt;
+<span style="color: #008080;">12</span>             &lt;div class="col-lg-3"&gt;3&lt;/div&gt;
+<span style="color: #008080;">13</span>             &lt;div class="col-lg-1"&gt;4&lt;/div&gt;
+<span style="color: #008080;">14</span>         &lt;/div&gt;
+<span style="color: #008080;">15</span>         &lt;!-- 如果孩子分数相加大于12 则另起一行显示 --&gt;
+<span style="color: #008080;">16</span>         &lt;div class="row"&gt;
+<span style="color: #008080;">17</span>             &lt;div class="col-lg-3"&gt;1&lt;/div&gt;
+<span style="color: #008080;">18</span>             &lt;div class="col-lg-3"&gt;2&lt;/div&gt;
+<span style="color: #008080;">19</span>             &lt;div class="col-lg-3"&gt;3&lt;/div&gt;
+<span style="color: #008080;">20</span>             &lt;div class="col-lg-4"&gt;4&lt;/div&gt;
+<span style="color: #008080;">21</span>         &lt;/div&gt;
+<span style="color: #008080;">22</span>     &lt;/div&gt;</pre>
 </div>
-<p>由于FormData对象已经将form表单数据转化好，所以不再用设置请求头了，此时在服务器端就可以通过表单元素的name属性值获取表单值</p>
 <p>&nbsp;</p>
-<p>综上所述，我们通过以下代码实现简单的文件上传进度条</p>
-<div class="cnblogs_Highlighter">
-<pre class="brush:javascript;gutter:true;">&lt;!DOCTYPE html&gt;
-&lt;html lang="en"&gt;
-&lt;head&gt;
-    &lt;meta charset="UTF-8"&gt;
-    &lt;title&gt;Document&lt;/title&gt;
-    &lt;style type="text/css" media="screen"&gt;
-        .outer {
-            width:400px;
-            height:30px;
-            border: 1px solid #000;
-            box-sizing: border-box;
-        }
-        .inner {
-            width:0px;
-            height:28px;
-            background-color: yellowgreen;
-
-<pre><code>    }
-&amp;lt;/style&amp;gt;</code></pre><p>&lt;/head&gt;<br>&lt;body&gt;<br>    &lt;form&gt;<br>        &lt;input type=”text” name=”username” &gt;<br>        &lt;input type=”password” name=”userpwd” &gt;<br>        &lt;input type=”file” name=”userfile” &gt;<br>        &lt;input type=”button” value=”提交”&gt;<br>    &lt;/form&gt;<br>    &lt;!– 进度条外壳 –&gt;<br>    &lt;div class=”outer”&gt;<br>        &lt;!– 进度条 –&gt;<br>        &lt;div class=”inner”&gt;&lt;/div&gt;<br>    &lt;/div&gt;<br>    &lt;script type=”text/javascript”&gt;<br>        // 获取form表单<br>        var form = document.querySelector(“form”);<br>        // 获取提交键<br>        var submit = document.querySelector(“input[type=button]”);<br>        // 获取进度条<br>        var inner = document.querySelector(“.inner”);<br>        // 为提交键设置事件<br>        submit.onclick = function(){<br>            // 利用FormData快速格式化form表单<br>            var formObj = new FormData(form);<br>            // 创建xhr对象<br>            var xhr = new XMLHttpRequest();<br>            // 设置上传方式和网址<br>            xhr.open(‘post’,’data.php’);<br>            // 因为FormData已经格式化好了，所以不用设置请求头了<br>            // xhr.setRequestHeader(“Content-type”,”application/x-www-form-urlencoded”);<br>            // 每当上传进度变化时就触发progress事件，改变进度条长度<br>            xhr.upload.onprogress = function(e){<br>                // 398为进度条最大长度<br>                inner.style.width = ((e.loaded / e.total) * 398) + ‘px’;<br>            }<br>            // 发送请求，将格式化后的form表单作为发送主体<br>            xhr.send(formObj);<br>        }<br>    &lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;<br></pre></p>
+<p>列嵌套：每一列中可以嵌套多个列实现列嵌套，嵌套的列最好用row包住消去padding保证占满整个父级列</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;"> 1</span> &lt;div class="container"&gt;
+<span style="color: #008080;"> 2</span>         &lt;div class="row"&gt;
+<span style="color: #008080;"> 3</span>             &lt;div class="col-md-4"&gt;
+<span style="color: #008080;"> 4</span>                 &lt;div class="row"&gt;
+<span style="color: #008080;"> 5</span>                     &lt;div class="col-md-6"&gt;a&lt;/div&gt;
+<span style="color: #008080;"> 6</span>                     &lt;div class="col-md-6"&gt;b&lt;/div&gt;
+<span style="color: #008080;"> 7</span>                 &lt;/div&gt;
+<span style="color: #008080;"> 8</span>             &lt;/div&gt;
+<span style="color: #008080;"> 9</span>         &lt;/div&gt;
+<span style="color: #008080;">10</span>     &lt;/div&gt;</pre>
 </div>
-<p>　　步骤总结：</p>
-<ol>
-<li>将包含有file类型的表单通过FormData构造函数格式化</li>
-<li>创建XMLHttpRequest对象并设置发送方式（post）和请求网址</li>
-<li>设置上传进度事件，利用其事件对象获取上传进度百分比并改变进度条长度</li>
-<li>发送请求主题</li>
-</ol>
 <p>&nbsp;</p>
+<p>列偏移：利用col-md-offset-x 实现左偏移x</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;"> 1</span> &lt;div class="container"&gt;
+<span style="color: #008080;"> 2</span>         &lt;div class="row"&gt;
+<span style="color: #008080;"> 3</span>             &lt;div class="col-md-4"&gt;
+<span style="color: #008080;"> 4</span> <span style="color: #000000;">                zuoe
+</span><span style="color: #008080;"> 5</span>             &lt;/div&gt;
+<span style="color: #008080;"> 6</span>             &lt;div class="col-md-4 col-md-offset-4"&gt;
+<span style="color: #008080;"> 7</span> <span style="color: #000000;">                yy
+</span><span style="color: #008080;"> 8</span>             &lt;/div&gt;
+<span style="color: #008080;"> 9</span>         &lt;/div&gt;
+<span style="color: #008080;">10</span>     &lt;/div&gt;</pre>
+</div>
+<p>&nbsp;</p>
+<p>列排序：利用col-md-push-x实现向右推x份 col-md-pull-x向左拉x列</p>
+<div class="cnblogs_code">
+<pre><span style="color: #008080;">1</span> &lt;div class="container"&gt;
+<span style="color: #008080;">2</span>     &lt;div class="row"&gt;
+<span style="color: #008080;">3</span>         &lt;div class="col-md-4 col-md-push-8"&gt;1&lt;/div&gt;
+<span style="color: #008080;">4</span>         &lt;div class="col-md-8 col-md-pull-4"&gt;2&lt;/div&gt;
+<span style="color: #008080;">5</span>     &lt;/div&gt;
+<span style="color: #008080;">6</span> &lt;/div&gt;</pre>
+</div>
+<p>&nbsp;</p>
+<p>响应式工具 hidden-xs hidden-sm hidden-md hidden-lg 即在对应后缀屏幕大小时隐藏 与之相反的是 visible-xs（sm、md、lg）在某个大小时才显现</p>
+<p><img src="https://img2018.cnblogs.com/blog/1824968/201910/1824968-20191013203040171-96066072.jpg" alt="" /></p>
 
                 <hr>
 
@@ -222,12 +252,12 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/2019/11/11/对于Node中Express框架的中间件概念的感知/" data-toggle="tooltip" data-placement="top" title="对于Node中Express框架的中间件概念的感知">&larr; Previous Post</a>
+                            <a href="/2019/10/13/移动端开发rem布局之less-媒体查询布局的原理步骤和心得/" data-toggle="tooltip" data-placement="top" title="移动端开发rem布局之less+媒体查询布局的原理步骤和心得">&larr; Previous Post</a>
                         </li>
                     
                     
                         <li class="next">
-                            <a href="/2019/10/13/移动端开发rem布局之less-媒体查询布局的原理步骤和心得/" data-toggle="tooltip" data-placement="top" title="移动端开发rem布局之less+媒体查询布局的原理步骤和心得">Next Post &rarr;</a>
+                            <a href="/2019/10/10/浅谈个人对客户端JavaScript同步、异步、执行顺序等概念的理解/" data-toggle="tooltip" data-placement="top" title="浅谈个人对客户端JavaScript同步、异步、执行顺序等概念的理解">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
