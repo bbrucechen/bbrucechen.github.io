@@ -13,11 +13,11 @@
 
     <title>
         
-          
+          利用express-session插件简单实现nodejs中登录状态的保存 - undefined
         
     </title>
 
-    <link rel="canonical" href="http://www.brucecave.com/">
+    <link rel="canonical" href="http://www.brucecave.com/2019/11/13/利用express-session插件简单实现nodejs中登录状态的保存/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -123,162 +123,150 @@
 
 
     <!-- Main Content -->
-    <!-- Page Header -->
-<header class="intro-header" style="background-image: url('/img/123123.jpg')">
+    
+<!-- Image to hack wechat -->
+<!-- <img src="http://www.brucecave.com/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/123123.jpg')
+    }
+</style>
+<header class="intro-header" >
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 ">
-                <div class="site-heading">
-                    <h1>Bruce&#39;s cave</h1>
-                    <!--<hr class="small">-->
-                    <span class="subheading"></span>
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                          <a class="tag" href="/tags/#Node.js" title="Node.js">Node.js</a>
+                        
+                    </div>
+                    <h1>利用express-session插件简单实现nodejs中登录状态的保存</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by Bruce Chen on
+                        2019-11-13
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </header>
 
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
 
-
-<!-- Main Content -->
-<div class="container">
-    <div class="row">
-        
-
-<!-- USE SIDEBAR -->
     <!-- Post Container -->
             <div class="
-                col-lg-8 col-lg-offset-1
-                col-md-8 col-md-offset-1
-                col-sm-12
-                col-xs-12
-                post-container
-            ">
-            
-                <!-- Main Content -->
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
 
-
-<div class="post-preview">
-
-    <a href="/2019/11/13/利用express-session插件简单实现nodejs中登录状态的保存/">
-        <h2 class="post-title">
-            利用express-session插件简单实现nodejs中登录状态的保存
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            什么是session？
-session就是会话，客户端和服务器直接的会话。他的粒度比http链接更粗，一次会话包含了多次连接。即一个session是多次http连接的集合。从我的客户端连接到服务器到关闭客户端，这期间的客户端和服务器之间的联系就是一次会话。
-为什么需要session？
-我们知道，http是无状态的，每一次http连接之间是无关联的。就好像加入a是客户端，b是服务器，那么无状态......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Bruce Chen on
-        2019-11-13
-    </p>
-
+                <p><span style="font-size: 18px;">什么是session？</span></p>
+<p>session就是会话，客户端和服务器直接的会话。他的粒度比http链接更粗，一次会话包含了多次连接。即一个session是多次http连接的集合。从我的客户端连接到服务器到关闭客户端，这期间的客户端和服务器之间的联系就是一次会话。</p>
+<p><span style="font-size: 18px;">为什么需要session？</span></p>
+<p>我们知道，http是无状态的，每一次http连接之间是无关联的。就好像加入a是客户端，b是服务器，那么无状态就是指a没有记忆力，每一次a和b的对话（即每一次http连接），a都是记不住，a不记得自己之前是否跟b说过话，也不记得说话的内容，这就是http的无状态。http的这个特性就导致了我们无法直接实现状态登录的保存，无法实现当登录账号后连接该服务器其他页面时依旧保持着登陆的状态。</p>
+<p>所以为了解决问题，人们想出了很多方法，比如说登录后在数据库中对该用户的数据打上登录的标记，每次链接网页就去查询谁登录了，但是这种办法太笨，会造成对服务器的压力。</p>
+<p>还有一种办法是利用cookie，cookie就是一种客户端存储技术。我们可以把用户的信息存储在cookie中，每次切换页面就去cookie中查询，保持该用户的登录状态。但是这种办法有一个巨大缺陷，就是不够安全，信息是存储在客户端的，有可能被其他用户恶意读取篡改，所以这种办法也不可行。</p>
+<p>这时候人们就想，既然存储在客户端不安全，那我存在服务器不就相对安全了吗？所以就有了session的诞生。所以总结下来，session就是一种在同一主机不同http请求之间保持状态的技术手段</p>
+<p><span style="font-size: 18px;">Session的机制</span></p>
+<p>1.生成全局唯一标识符（sessionid）；每个客户端对应一个id，服务器识别客户端后通过其id读取session中的数据</p>
+<p>2.开辟数据存储空间。一般会在内存中创建相应的数据结构，但这种情况下，系统一旦掉电，所有的会话数据就会丢失，如果是电子商务网站，这种事故会造成严重的后果。不过也可以写到文件里甚至存储在数据库中，这样虽然会增加I/O开销，但session可以实现某种程度的持久化，而且更有利于session的共享；</p>
+<p>&nbsp;</p>
+<p>下面以Node.js中express框架的express-session插件来具体实现登录状态的保存（使用的MongoDB数据库）</p>
+<div class="cnblogs_Highlighter">
+<pre class="brush:javascript;gutter:true;">//当用户点击登录选项时，以post方式将表单数据传送到服务器<br />router.post('/login',function(req,res) {<br />　　　　//获取表单数据
+    var body = req.body; <br />　　　　//User是数据库模型 在该数据库中查找是否有对应数据
+    User.findOne({
+        email:body.email,
+        password:md5(md5(body.password))
+    },function(err,data) {<br />　　　　　　　　　　//服务器错误
+        if(err) {
+            return res.status(500).json({
+                err_code:500,
+                message:'server is busy'
+            });
+        }<br />　　　　　　　　　　//如果找不到对应数据 说明输入错误
+        if(!data) {
+            return res.status(200).json({
+                err_code:1,
+                message:'email or nickname is wrong!'
+            })
+        }<br />　　　　　　　　　　//如果找到数据 则将找到的数据存入session的user属性中
+        // 注意 存放的应该是数据库中该用户的数据
+        req.session.user = data;
+        res.status(200).json({
+                err_code:0,
+                message:'ok!'
+            })
+    })
+})
+</pre>
 </div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2019/11/11/对于Node中Express框架的中间件概念的感知/">
-        <h2 class="post-title">
-            对于Node中Express框架的中间件概念的感知
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            中间件是什么呢？
-中间件就是客户端http请求发起传送到服务器和服务器返回响应之间的一些处理函数。
-&nbsp;
-为什么要使用中间件?
-通过中间件，可以对数据进行操作使得我们能方便地操作请求数据编写服务器响应。如body-parse中间件对post请求的参数进行处理让我们可以通过res.body快速获取请求参数，express-session中间件可以让我们对数据进行保存，express.s......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Bruce Chen on
-        2019-11-11
-    </p>
-
+<p>&nbsp;想要实现登录状态的保持，则存入的数据一定得是该用户库中存放的数据，方便后面的操作。存入数据后，无法用户访问该主机哪个页面，数据都会存在，随时都可以调用，也就实现了登录状态的保持</p>
+<p>&nbsp;</p>
+<p>当我们想退出登录时，则应该讲解session数据清空，也就等于退出了登录状态</p>
+<div class="cnblogs_Highlighter">
+<pre class="brush:javascript;gutter:true;">router.get('/logout',function(req,res) {
+    req.session.user = null;
+    res.redirect('/');
+})
+</pre>
 </div>
-<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
 
+                <hr>
 
-<!-- Pager -->
+                
 
-<ul class="pager">
-    
-    
-</ul>
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2019/11/11/对于Node中Express框架的中间件概念的感知/" data-toggle="tooltip" data-placement="top" title="对于Node中Express框架的中间件概念的感知">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
 
+                
 
-
-                <!-- 如果开启评论功能 -->
                 
 
             </div>
+    <!-- Side Catalog Container -->
+        
+
     <!-- Sidebar Container -->
+
             <div class="
-                col-lg-3 col-lg-offset-0
-                col-md-3 col-md-offset-0
-                col-sm-12
-                col-xs-12
-                sidebar-container
-            ">
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
                 <!-- Featured Tags -->
                 
 
-                <!-- Short About -->
-                <section class="visible-md visible-lg">
-                    <hr><h5><a href="/about/">ABOUT ME</a></h5>
-                    <div class="short-about">
-
-                        
-                            <img src="/img/BnJ.jpg" />
-                        
-
-                        
-                            <p>小树不倒我不倒</p>
-                        
-
-                        <!-- SNS Link -->
-                        <ul class="list-inline">
-                            
-                            
-                            
-
-                            
-
-                            
-
-                            
-                                <li>
-                                    <a target="_blank"  href="https://github.com/bbrucechen">
-                                        <span class="fa-stack fa-lg">
-                                            <i class="fa fa-circle fa-stack-2x"></i>
-                                            <i class="fa fa-github fa-stack-1x fa-inverse"></i>
-                                        </span>
-                                    </a>
-                                </li>
-                            
-                            
-                            
-                            
-                        </ul>
-                    </div>
-                </section>
-                
                 <!-- Friends Blog -->
                 
             </div>
-        
+
+        </div>
     </div>
-</div>
+</article>
+
+
+
+
+
+
+
 
 
     <!-- Footer -->

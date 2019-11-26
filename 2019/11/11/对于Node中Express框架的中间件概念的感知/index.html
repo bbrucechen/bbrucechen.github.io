@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="小树不倒我不倒">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+          对于Node中Express框架的中间件概念的感知 - undefined
+        
+    </title>
+
+    <link rel="canonical" href="http://www.brucecave.com/2019/11/11/对于Node中Express框架的中间件概念的感知/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Bruce&#39;s cave</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    
+<!-- Image to hack wechat -->
+<!-- <img src="http://www.brucecave.com/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/123123.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                          <a class="tag" href="/tags/#Node.js" title="Node.js">Node.js</a>
+                        
+                    </div>
+                    <h1>对于Node中Express框架的中间件概念的感知</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by Bruce Chen on
+                        2019-11-11
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <p>中间件是什么呢？</p>
+<p>中间件就是客户端http请求发起传送到服务器和服务器返回响应之间的一些处理函数。</p>
+<p>&nbsp;</p>
+<p>为什么要使用中间件?</p>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">通过中间件，可以<span style="color: #df402a; font-weight: bold;">对数据进行操作使得我们能方便地操作请求数据编写服务器响应。如body-parse中间件对post请求的参数进行处理让我们可以通过res.body快速获取请求参数，express-session中间件可以让我们对数据进行保存，express.static是express内置中间件，可以让我们快速处理静态资源，express.Router路由中间件等等</span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">&nbsp;</div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="color: #df402a; font-weight: bold;">中间件如何使用？</span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">Express中，对中间件进行了几种分类：</div>
+<div id="5054-1573391208685" style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-size: 16px; font-weight: bold;">1.不关心请求路径和请求方法的中间件，通过app.use函数实现</span></div>
+<div id="6422-1573391354530" style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-weight: bold;">app.use(function(req,res,next){})</span></div>
+<div id="5934-1573391380659" style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-weight: bold;">客户端发起的<span style="color: #df402a; font-weight: bold;">任意请求<span style="font-weight: bold;">都会经过这个中间件函数进行处理</span></span></span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">next指下一个满足路径条件的中间件，如果有执行next，那么这个中间件执行完后就会执行下一个满足条件的中间件，如果没有next，就会忽略后面所有中间件</div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">&nbsp;</div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">以下面代码为例（设服务器ip为127.0.0.1，后面所有例子都以该ip为例）</div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">
+<div class="cnblogs_Highlighter">
+<pre class="brush:javascript;gutter:true;">var express = require('express')
+var app = express()
+
+<p>app.use(function(req,res) {<br>    res.end(‘404 NOT FOUND’)<br>}</p>
+<p>app.listen(3000,function(){<br>    console.log(‘running…’);<br>}<br></pre></p>
+</div>
+<p>所有对该服务器的请求最终都会返回404 NOT FOUND，无论是路径是什么</p>
+<div id="7573-1573391779580" style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-size: 16px; font-weight: bold;">2.关心请求路径的中间件,通过app.use函数实现</span></div>
+<div id="3075-1573391823462" style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-weight: bold;">app.use(路径，function(req,res,next){}）</span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">客户端发起的以<span style="font-weight: bold;">第一个参数开头的路径才会进入该中间件</span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">&nbsp;</div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-weight: bold;">以下代码为例</span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">
+<div class="cnblogs_Highlighter">
+<pre class="brush:javascript;gutter:true;">var express  = require('express')
+var app = express()
+
+<p>app.use(‘/public’,function(req,res,next) {<br>    res.end(‘you are public’);<br>}</p>
+<p>app.listen(3000,function(){<br>    console.log(‘running…’)<br>}<br></pre></p>
+</div>
+<p>&nbsp;只要客户端访问该服务器的地址是以public开头（即127.0.0.1:3000/public/xxx），那么就会返回you are public 字符串</p>
+<p>&nbsp;</p>
+<div id="3017-1573391977817" style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-size: 16px; font-weight: bold;">3.严格匹配路径的中间件，通过app.get/app.post等实现</span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-size: 16px; font-weight: bold;">也就是我们所说的服务器路由</span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-size: 16px; font-weight: bold;">app.get(路径，函数）</span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-size: 16px; font-weight: bold;">app.post(路径，函数）</span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-size: 16px; font-weight: bold;">只有严格匹配请求方式和请求路径的请求才会进入该中间件</span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">&nbsp;</div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-size: 16px; font-weight: bold;">以下面代码为例</span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">
+<div class="cnblogs_Highlighter">
+<pre class="brush:javascript;gutter:true;">var express = require('express')
+var app = express()
+<br />// 中间件1
+app.get('/get/puclic',function(req,res){
+    res.end('get!');
+}
+
+<p>// 中间件2<br>app.post(‘/post/public’,function(req,res) {<br>    res.end(‘post!’);<br>}</p>
+<p>app.listen(3000,function(){<br>    console.log(‘running…’);<br>}<br></pre></p>
+</div>
+<p>&nbsp;客户端只有通过get方式访问127.0.0.1:3000/get/public时才会进入中间件1，只有通过post方式访问127.0.0.1:3000/post/public时才会进入中间件2，只有这两者完全匹配才会进入对应的中间件</p>
+<p>&nbsp;</p>
+<div id="1636-1573392010427" style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-size: 16px; font-weight: bold;">中间件的执行机制：</span></div>
+<div id="2092-1573392384806" style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-weight: bold;">1.中间件的第一次执行是同步的，当一个请求发出到达服务器后，则按照顺序匹配所有中间件，当找到一个匹配时，则进入该中间件</span></div>
+<div id="8285-1573392393858" style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-weight: bold;">2.如果该中间件最后没有执行next函数，则该请求在此中间件终止，不再进入后面的中间件；如果有，则会直接进入后面匹配的中间件中（此时不再是按顺序！）</span></div>
+<div id="4380-1573392402057" style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-weight: bold;">3.重复1-2步</span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">&nbsp;</div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-weight: bold;">如果把客户端发起请求和服务器发出响应比作自来水的进入水库和输出水库，那么中间件就是水库里对水分别进行过滤沉淀消毒的各个小厂房，而中间件的函数的next参数就相当于每个小厂房的门，只有这个门打开了，处理完的请求的数据才能继续向后面的中间件发送，直至响应发出。</span></div>
+![image](https://img2018.cnblogs.com/common/1824968/201911/1824968-20191111154526495-1372158045.jpg)
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="font-weight: bold;"><img src="https://img2018.cnblogs.com/common/1824968/201911/1824968-20191111154526495-1372158045.jpg" alt="" /></span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">&nbsp;</div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">&nbsp;</div>
+<p>&nbsp;</p>
+<p>以下面的代码为例进一步说明中间件的执行顺序</p>
+<div class="cnblogs_Highlighter">
+<pre class="brush:javascript;gutter:true;">var express = require('express');
+
+<p>var app = express()<br><br />//中间件1<br>app.use(function(req,res) {<br>    console.log(‘非严格’);<br>})<br><br />//中间件2<br>app.use(‘/public’,function(req,res,next) {<br>    console.log(‘半严格’);<br />　　　　next();<br>})<br><br />//中间件3<br>app.get(‘/public’,function(req,res) {<br>    console.log(‘严格 get’);<br>})<br><br />//中间件4<br>app.post(‘/public’,function(req,res) {<br>    console.log(‘严格 post’);<br>})<br /><br />//中间件5<br />app.get(‘/public’,function(req,res) {<br>    console.log(‘严格 get’);<br>})</pre></p>
+<pre class="brush:javascript;gutter:true;">app.listen(3000,function() { console.log('running...') })</pre>
+</div>
+<p>&nbsp;此时客户端访问/public，那么首先会进入中间件1，因为有执行next函数，所以直接寻找后面能够匹配的中间件，进入中间件2，中间有执行next函数，所以进入中间件3，但是中间件3没有next函数，所以不再执行，所以输出的语句是&lsquo;非严格&rsquo; '半严格' '严格 get'</p>
+<p>&nbsp;</p>
+<p>如果是下面代码，请求/public后结果又是怎样呢？</p>
+<div class="cnblogs_Highlighter">
+<pre class="brush:javascript;gutter:true;">var express = require('express');
+
+<p>var app = express()</p>
+<p>app.use(‘/img’,function(req,res) {<br>    console.log(‘半严格’);<br>})</p>
+<p>app.get(‘/public’,function(req,res) {<br>    console.log(‘严格 get’);<br>})</p>
+<p>app.post(‘/public’,function(req,res) {<br>    console.log(‘严格 post’);<br>})<br /><br /></pre></p>
+<pre class="brush:javascript;gutter:true;">app.listen(3000,function() { console.log('running...') })</pre>
+</div>
+<p>&nbsp;结果是输出'严格 get'，请求到达服务器后，从上往下逐渐匹配，匹配到第二个中间件，进入执行，但是该中间件没有执行next函数，所以终止</p>
+<p>&nbsp;</p>
+<p>综上所述，我们可以知道，第三方中间件的安装执行是有讲究的</p>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="color: #df402a; font-weight: bold;">对于一些封装请求数据方便我们操作以及处理静态资源的中间件我们应该放在路由中间件（即有发出服务器响应的中间件）之前编写，否则在编写路由时就无法使用封装好的数据。而对于返回404页面的路由可以放在所有中间件后面，这样无法找到的页面则会自动匹配到最后一个返回404页面</span></div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">&nbsp;</div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;"><span style="color: #df402a; font-weight: bold;">中间件的使用是灵活多变的，本文章只是简单概述其概念及其执行机制，更多技巧仍需读者自行体会</span></div>
+</div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">&nbsp;</div>
+<div style="white-space: pre-wrap; text-align: left; line-height: 1.75; font-size: 14px;">&nbsp;</div>
+</div>
+</div>
+</div>
+
+
+                <hr>
+
+                
+
+                <ul class="pager">
+                    
+                        <li class="previous">
+                            <a href="/2019/11/13/利用express-session插件简单实现nodejs中登录状态的保存/" data-toggle="tooltip" data-placement="top" title="利用express-session插件简单实现nodejs中登录状态的保存">&larr; Previous Post</a>
+                        </li>
+                    
+                    
+                </ul>
+
+                
+
+                
+
+            </div>
+    <!-- Side Catalog Container -->
+        
+
+    <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/bbrucechen">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Bruce&#39;s cave 2019 
+                    <br>
+                    Theme by <a href="http://huangxuan.me" target="_blank" rel="noopener">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    Ported by <a href="http://blog.kaijun.rocks" target="_blank" rel="noopener">Kaijun</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=kaijun&repo=hexo-theme-huxblog&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://www.brucecave.com/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- Side Catalog -->
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="http://www.brucecave.com/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
