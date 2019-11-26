@@ -13,11 +13,11 @@
 
     <title>
         
-          论DOM中文档和元素的位置大小属性及其区别 - undefined
+          快速迁移博客园博文到Github Page + Hexo搭建的博客 - undefined
         
     </title>
 
-    <link rel="canonical" href="http://www.brucecave.com/2019/11/13/论DOM中文档和元素的位置大小属性及其区别/">
+    <link rel="canonical" href="http://www.brucecave.com/2019/11/26/快速迁移博客园博文到Github-Page+Hexo搭建的博客/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -142,11 +142,11 @@
                     <div class="tags">
                         
                     </div>
-                    <h1>论DOM中文档和元素的位置大小属性及其区别</h1>
+                    <h1>快速迁移博客园博文到Github Page + Hexo搭建的博客</h1>
                     <h2 class="subheading"></h2>
                     <span class="meta">
                         Posted by Bruce Chen on
-                        2019-11-13
+                        2019-11-26
                     </span>
                 </div>
             </div>
@@ -165,15 +165,11 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <p>element.offsetLeft/Top&nbsp; 获取元素相对于最近的有定位的父元素的坐标，如果没有有定位的父元素，则是文档坐标</p>
-<p>element.scrollTop/Left 获取元素滚动卷去的距离</p>
-<p>element.offsetWidth/Height 获取元素的宽度高度（包含边框）</p>
-<p>element.clientWidth/Height 获取元素的宽度高度（不包含边框）</p>
-<p>element.scrollWidth/Height 获取元素的内容宽度高度（包括被卷曲的部分）</p>
-<p>e.pageX/Y 获取鼠标的文档坐标（相对于文档而言）</p>
-<p>e.clientX/Y 获取鼠标的视口坐标（相对于视口而言）</p>
-<p>e.screenX/Y 获取鼠标的屏幕坐标（相对于整个浏览器而言）</p>
-<p>window.pageY/XOfffset 获取页面的滚动距离</p>
+                <p>今天终于有空搭建了自己的博客，githubpage、hexo、主题、图片全都搭建好了。最后发现hexo的博客需要用md写博文，然而自己之前的博文都写在博客园，总不能全部放弃，于是想着先把博客园的博客备份出来，结果发现备份数据是xml格式，而网易的有道云笔记可以写md文件解析xml，所以我就将其复制黏贴到有道云笔记中</p>
+<p>具体步骤<br><br>1.先到原博客中备份想要迁移的博文，获得xml文件<br>进入博客园主页的管理，点击博客备份，选择相应时间，下载xml文件<br><img src="F3C9DDBADEE74E5988C2A260C9632277" alt="beifen"></p>
+<p>2.注册网易账号下载有道云并新建markdown笔记，将xml内容复制到笔记中，根据右边预览图自行裁剪所需内容<br><img src="5DFEFC5E44C344A5B64185C3C7C36BB8" alt="裁剪"></p>
+<p>3.指令台输入hexo new [博文名字]创建md文件，并将裁剪的内容复制进去。然后输入指令 hexo generate –deploy 上传到仓库即可</p>
+
 
                 <hr>
 
@@ -181,13 +177,9 @@
 
                 <ul class="pager">
                     
-                        <li class="previous">
-                            <a href="/2019/11/26/快速迁移博客园博文到Github-Page+Hexo搭建的博客/" data-toggle="tooltip" data-placement="top" title="快速迁移博客园博文到Github Page + Hexo搭建的博客">&larr; Previous Post</a>
-                        </li>
-                    
                     
                         <li class="next">
-                            <a href="/2019/11/13/利用express-session插件简单实现nodejs中登录状态的保存/" data-toggle="tooltip" data-placement="top" title="利用express-session插件简单实现nodejs中登录状态的保存">Next Post &rarr;</a>
+                            <a href="/2019/11/13/论DOM中文档和元素的位置大小属性及其区别/" data-toggle="tooltip" data-placement="top" title="论DOM中文档和元素的位置大小属性及其区别">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
