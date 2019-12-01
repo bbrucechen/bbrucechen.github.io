@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="小树不倒我不倒">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+          NodeJs中babel转码器的配置和使用 - undefined
+        
+    </title>
+
+    <link rel="canonical" href="http://www.brucecave.com/2019/12/01/NodeJs中babel转码器的配置和使用/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Bruce&#39;s cave</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    
+<!-- Image to hack wechat -->
+<!-- <img src="http://www.brucecave.com/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/123123.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                    </div>
+                    <h1>NodeJs中babel转码器的配置和使用</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by Bruce Chen on
+                        2019-12-01
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <p>虽然现在ES6语法普遍支持度很高（我自己的电脑支持度高达92%），但是由于module语法支持度不高以及考虑到一些老旧浏览器的用户，所以我决定对我的nodejs项目配置babel转码器将源代码转为非ES6代码。<br>babel转码器好用在很灵活，可以在命令行中转码也可以实时转码，还可以将代码转换后生成新文件供我们上线项目使用</p>
+<h3 id="使用方法："><a href="#使用方法：" class="headerlink" title="使用方法："></a>使用方法：<br></h3><p>1.配置<br><br>部署Babel的第一步<br>Babel 的配置文件是.babelrc，存放在项目的根目录下。使用 Babel 的第一步，就是配置这个文件。</p>
+<p>该文件用来设置转码规则和插件，基本格式如下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;present&quot;:[</span><br><span class="line">        &quot;@babel/env&quot;,</span><br><span class="line">        &quot;@babel/preset-react&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;plugins&quot;:[]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>其中present字段设定转码规则，可以通过以下代码下载转码规则：</p>
+<h5 id="最新转码规则"><a href="#最新转码规则" class="headerlink" title="#### ## 最新转码规则"></a>#### ## 最新转码规则</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install --save-dev @babel/preset-env</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="react-转码规则"><a href="#react-转码规则" class="headerlink" title="# react 转码规则"></a># react 转码规则</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install --save-dev @babel/preset-react</span><br></pre></td></tr></table></figure>
+
+
+<p>dev的含义：代表这个包是开发临时使用，保存到 package.json 文件中的 devDependencies 选项中。<br/><br>注意：.babelrc文件的配置必不可少</p>
+<h3 id="开发调试过程中使用-babel-regitser模块"><a href="#开发调试过程中使用-babel-regitser模块" class="headerlink" title="开发调试过程中使用@babel/regitser模块"></a>开发调试过程中使用@babel/regitser模块</h3><p>开发的过程中，需要不断的调试，为了方便，我们需要能实时转码的工具，即每次调用都不需要一个文件一个文件的转码，可以用@babel/regitser模块<br><br>使用方法：<br><br>1.先安装该模块<br></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install --save-dev @babel/register</span><br></pre></td></tr></table></figure>
+
+
+<p>2.设立一个入口文件，该文件用于载入babel/register模块并将其中require的js文件进行实时转码<br></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// index.js</span><br><span class="line">require(&apos;@babel/register&apos;);</span><br><span class="line">require(&apos;./es6.js&apos;);</span><br></pre></td></tr></table></figure>
+
+
+<p>注意：必须先引入模块再引入要实时转码的文件<br><br>3.每当调试时，运行该入口文件即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node index.js //会直接通过register将es6.js转码并执行</span><br></pre></td></tr></table></figure>
+
+
+
+<p>注意：该模块只用适合在开发环境使用，用于开发调试时将源代码转换。因为是实时的，如果用于上线后，会影响网站性能<br></p>
+<h3 id="源代码利用-babel-cli转换成上线使用代码"><a href="#源代码利用-babel-cli转换成上线使用代码" class="headerlink" title="源代码利用@babel/cli转换成上线使用代码"></a>源代码利用@babel/cli转换成上线使用代码</h3><p>当完成开发后，我们需要将写好的代码完全转码成新的文件用于线上环境，babel/cli工具可以帮助完成。<br><br>这个模块用于命令行中转码使用，可以将js文件代码转码输出到命令行中也可以转码输出到新的文件里，还可以转码整个目录的文件到另一个目录<br><br>使用方法：<br><br>1、安装<br></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install --save-dev @babel/cli</span><br></pre></td></tr></table></figure>
+
+
+<p>2.使用<br></p>
+<h5 id="转码结果输出到标准输出"><a href="#转码结果输出到标准输出" class="headerlink" title="###### # ## 转码结果输出到标准输出"></a>###### # ## 转码结果输出到标准输出<br></h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npx babel example.js</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="转码结果写入一个文件"><a href="#转码结果写入一个文件" class="headerlink" title="# 转码结果写入一个文件"></a># 转码结果写入一个文件</h5><p>–out-file 或 -o 参数指定输出文件<br></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ npx babel example.js --out-file compiled.js</span><br><span class="line"># 或者</span><br><span class="line">$ npx babel example.js -o compiled.js</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="整个目录转码"><a href="#整个目录转码" class="headerlink" title="# 整个目录转码"></a># 整个目录转码</h5><p>–out-dir 或 -d 参数指定输出目录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ npx babel src --out-dir lib</span><br><span class="line"># 或者</span><br><span class="line">$ npx babel src -d lib</span><br></pre></td></tr></table></figure>
+
+
+<p>所以可以使用babel src -d lib 将src目录下的代码转码生成同名文件并放到lib文件夹中。<br><br>注意：src是我们开发时写的代码，有es6语法。lib是上线时使用的代码，无es6语法<br></p>
+<p>packagejson文件中script字段用法<br></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;name&quot;: &quot;babel-demo&quot;,</span><br><span class="line">  &quot;scripts&quot;: &#123;</span><br><span class="line">    &quot;test&quot;: &quot;echo \&quot;Error: no test specified\&quot; &amp;&amp; exit 1&quot;,</span><br><span class="line">    &quot;build&quot;: &quot;babel demo1.js&quot;，</span><br><span class="line">    &quot;dev&quot;: &quot;node main.js&quot;,</span><br><span class="line">    &quot;prestart&quot;: &quot;npm run build&quot;,</span><br><span class="line">    &quot;start&quot;: &quot;node dist/app.js&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;devDependencies&quot;: &#123;</span><br><span class="line">    &quot;babel-cli&quot;: &quot;^6.22.2&quot;,</span><br><span class="line">    &quot;babel-preset-es2015&quot;: &quot;^6.22.0&quot;,</span><br><span class="line">    &quot;babel-preset-react&quot;: &quot;^6.22.0&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>script字段用于设置快捷命令执行，即可以通过指定的新命令来执行某些命令<br></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">script:&#123;</span><br><span class="line">    命令名：“被代替的命令”</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>命令名可以随意起（除了start和prestart），执行方式为<br>npm run 命令名<br><br>比如可以将调试时执行入口函数的命令其名为’dev’<br>“build”: “babel demo1.js”，<br></p>
+<p>start命令名用于执行上线时所使用的入口函数，prestart的命令会在执行start前自动执行，所以可以用来执行babel/cli工具先将源代码转为上线时所用代码<br><br>“prestart”: “babel src -d dist”,<br>    “start”: “node dist/app.js”</p>
+<p>所以只要将babel/cli安装在项目中并且babel src -d lib写入script的prestart字段就可以保证每次执行npm run start前都会被转码</p>
+
+
+                <hr>
+
+                
+
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2019/11/26/快速迁移博客园博文到Github-Page+Hexo搭建的博客/" data-toggle="tooltip" data-placement="top" title="快速迁移博客园博文到Github Page + Hexo搭建的博客">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                
+
+                
+
+            </div>
+    <!-- Side Catalog Container -->
+        
+
+    <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/bbrucechen">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Bruce&#39;s cave 2019 
+                    <br>
+                    Theme by <a href="http://huangxuan.me" target="_blank" rel="noopener">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    Ported by <a href="http://blog.kaijun.rocks" target="_blank" rel="noopener">Kaijun</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=kaijun&repo=hexo-theme-huxblog&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://www.brucecave.com/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- Side Catalog -->
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="http://www.brucecave.com/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

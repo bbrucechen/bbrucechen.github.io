@@ -17,7 +17,7 @@
         
     </title>
 
-    <link rel="canonical" href="http://www.brucecave.com/">
+    <link rel="canonical" href="http://www.brucecave.com/page/2/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -160,251 +160,29 @@
 
 <div class="post-preview">
 
-    <a href="/2019/12/01/NodeJs中babel转码器的配置和使用/">
+    <a href="/2019/06/26/Video-audio标签的一些基础使用心得/">
         <h2 class="post-title">
-            NodeJs中babel转码器的配置和使用
+            Video/audio标签的一些基础使用心得
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            虽然现在ES6语法普遍支持度很高（我自己的电脑支持度高达92%），但是由于module语法支持度不高以及考虑到一些老旧浏览器的用户，所以我决定对我的nodejs项目配置babel转码器将源代码转为非ES6代码。babel转码器好用在很灵活，可以在命令行中转码也可以实时转码，还可以将代码转换后生成新文件供我们上线项目使用
-使用方法：1.配置部署Babel的第一步Babel 的配置文件是.bab......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Bruce Chen on
-        2019-12-01
-    </p>
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2019/11/26/快速迁移博客园博文到Github-Page+Hexo搭建的博客/">
-        <h2 class="post-title">
-            快速迁移博客园博文到Github Page + Hexo搭建的博客
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            今天终于有空搭建了自己的博客，githubpage、hexo、主题、图片全都搭建好了。最后发现hexo的博客需要用md写博文，然而自己之前的博文都写在博客园，总不能全部放弃，于是想着先把博客园的博客备份出来，结果发现备份数据是xml格式，而网易的有道云笔记可以写md文件解析xml，所以我就将其复制黏贴到有道云笔记中
-具体步骤1.先到原博客中备份想要迁移的博文，获得xml文件进入博客园主页的管......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Bruce Chen on
-        2019-11-26
-    </p>
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2019/11/13/论DOM中文档和元素的位置大小属性及其区别/">
-        <h2 class="post-title">
-            论DOM中文档和元素的位置大小属性及其区别
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            element.offsetLeft/Top&nbsp; 获取元素相对于最近的有定位的父元素的坐标，如果没有有定位的父元素，则是文档坐标
-element.scrollTop/Left 获取元素滚动卷去的距离
-element.offsetWidth/Height 获取元素的宽度高度（包含边框）
-element.clientWidth/Height 获取元素的宽度高度（不包含边框）
-elemen......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Bruce Chen on
-        2019-11-13
-    </p>
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2019/11/13/利用express-session插件简单实现nodejs中登录状态的保存/">
-        <h2 class="post-title">
-            利用express-session插件简单实现nodejs中登录状态的保存
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            什么是session？
-session就是会话，客户端和服务器直接的会话。他的粒度比http链接更粗，一次会话包含了多次连接。即一个session是多次http连接的集合。从我的客户端连接到服务器到关闭客户端，这期间的客户端和服务器之间的联系就是一次会话。
-为什么需要session？
-我们知道，http是无状态的，每一次http连接之间是无关联的。就好像加入a是客户端，b是服务器，那么无状态......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Bruce Chen on
-        2019-11-13
-    </p>
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2019/11/11/对于Node中Express框架的中间件概念的感知/">
-        <h2 class="post-title">
-            对于Node中Express框架的中间件概念的感知
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            中间件是什么呢？
-中间件就是客户端http请求发起传送到服务器和服务器返回响应之间的一些处理函数。
+            常用方法
+.play（）：用于音频视频的播放
+.pause（）：用于音频视频的暂停
 &nbsp;
-为什么要使用中间件?
-通过中间件，可以对数据进行操作使得我们能方便地操作请求数据编写服务器响应。如body-parse中间件对post请求的参数进行处理让我们可以通过res.body快速获取请求参数，express-session中间件可以让我们对数据进行保存，express.s......
+常用属性
+
+1 &lt;audio src="Batmobile Battle Mode Reveal Music.mp3" autobuffer autoplay loop controls &gt;&lt;/audio&gt;
+
+durantion：获取目标标签的音频视频文件的时长
+loop......
         </div>
     </a>
     <p class="post-meta">
         Posted by Bruce Chen on
-        2019-11-11
-    </p>
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2019/10/31/简单的实现上传文件进度条/">
-        <h2 class="post-title">
-            简单的实现上传文件进度条
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            实现文件上传（即input标签的file类型），可以使用XMLHttpRequest对象中的upload属性的progress事件，该事件的事件对象可以返回上传进度相关数据
-XMLHttpRequestObject.upload.onprogress = function(e){};
-其中e.loaded表示已经上传的数据大小，e.total表示整个文件的大小，用e.loaded除以e.to......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Bruce Chen on
-        2019-10-31
-    </p>
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2019/10/13/移动端开发rem布局之less-媒体查询布局的原理步骤和心得/">
-        <h2 class="post-title">
-            移动端开发rem布局之less+媒体查询布局的原理步骤和心得
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            rem即是以html文件中font-size的大小的倍数rem布局的原理：通过媒体查询设置不同屏幕宽度下的html的font-size大小，然后在css布局时用rem单位取代px，从而实现页面元素大小的动态适配，做出更漂亮整洁的页面rem布局的好处：1.页面整洁2.动态适配缺点：1.需要计算rem，但可以通过自动转化单位插件弥补
-less：是一门css扩展语言，也成为css预处理器，引入了变......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Bruce Chen on
-        2019-10-13
-    </p>
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2019/10/13/移动端开发之响应式开发和bootstrap基础/">
-        <h2 class="post-title">
-            移动端开发之响应式开发和bootstrap基础
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            响应式开发
-（就是利用媒体查询针对不同宽度的设备进行布局和样式的设置，从而设配不同设备的目的）
-
-&nbsp;
-响应式布局容器响应式需要一个父级作为布局容器，来配合子级元素来实现变化效果
-原理：不同屏幕下，通过媒体查询来改变这个布局容器的大小，再改变里面子元素的排列方式和大小，从而实现不同屏幕下，看到不同的页面布局和样式变化
-
-&nbsp;
-Bootstrap的基本使用**Bootstrap......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Bruce Chen on
-        2019-10-13
-    </p>
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2019/10/10/浅谈个人对客户端JavaScript同步、异步、执行顺序等概念的理解/">
-        <h2 class="post-title">
-            浅谈个人对客户端JavaScript同步、异步、执行顺序等概念的理解
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            一.同步和异步的概念。
-同步：即按代码的顺序执行任务。
-在下列代码中，按照同步概念，则是先打印1后打印2。
-
-1 console.log(1);
-2 console.log(2);
-
-异步：即执行一个任务的同时执行另一个任务。如果按照此概念执行上面代码，则是同时打印出1和2。
-&nbsp;
-二.客户端JavaScript中代码的执行顺序
-首先，不管是核心JavaScript还是客户端Java......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Bruce Chen on
-        2019-10-10
-    </p>
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2019/10/07/对于闭包的理解/">
-        <h2 class="post-title">
-            对于闭包的理解
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            ---恢复内容开始---
-首先得从词法作用域说起
-词法作用域就是函数是通过词法区分作用域的。是在定义的位置执行的，而不是在调用的位置执行的。
-&nbsp;
-调用对象和全局对象
-调用一个函数时，会将其作用域设置为其起作用的作用域链，并且在该作用域链前添加一个调用对象。
-&nbsp;
-作为闭包的嵌入函数
-想象一个嵌套在函数f里的函数g，f被调用时，其作用域包含了对f这一调用的调用对象，后边是全局......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Bruce Chen on
-        2019-10-07
+        2019-06-26
     </p>
 
 </div>
@@ -416,10 +194,10 @@ Bootstrap的基本使用**Bootstrap......
 
 <ul class="pager">
     
-    
-        <li class="next">
-            <a href="/page/2/">Older Posts &rarr;</a>
+        <li class="previous">
+            <a href="/">&larr; Newer Posts</a>
         </li>
+    
     
 </ul>
 
