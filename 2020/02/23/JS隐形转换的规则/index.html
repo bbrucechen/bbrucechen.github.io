@@ -13,11 +13,11 @@
 
     <title>
         
-          Linux服务器上部署Nginx项目 - undefined
+          JS隐形转换的规则 - undefined
         
     </title>
 
-    <link rel="canonical" href="http://www.brucecave.com/2020/01/07/Linux服务器上部署Nginx项目/">
+    <link rel="canonical" href="http://www.brucecave.com/2020/02/23/JS隐形转换的规则/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -141,14 +141,12 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                          <a class="tag" href="/tags/#Nginx|Linux" title="Nginx|Linux">Nginx|Linux</a>
-                        
                     </div>
-                    <h1>Linux服务器上部署Nginx项目</h1>
+                    <h1>JS隐形转换的规则</h1>
                     <h2 class="subheading"></h2>
                     <span class="meta">
                         Posted by Bruce Chen on
-                        2020-01-07
+                        2020-02-23
                     </span>
                 </div>
             </div>
@@ -167,30 +165,41 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <p>今天尝试了下将自己的vue项目部署到nginx服务器上，nginx这玩意轻量级且好用，感觉比较适合我这种vue单页面应用</p>
-<p>直入主题，讲下步骤</p>
-<h4 id="1-安装依赖"><a href="#1-安装依赖" class="headerlink" title="1. 安装依赖"></a>1. 安装依赖</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install gcc zlib zlib-devel pcre-devel openssl openssl-devel</span><br></pre></td></tr></table></figure>
+                <p>在JS中，数据的比较一直是比较“玄学”的一个点，有时看似结果是true，结果是false，但其实这其中是有规律可循的，先来说大体上的基本规则：</p>
+<ol>
+<li>转成string类型： +（字符串连接符）</li>
+<li>转成number类型：++/–(自增自减运算符) + - * / %(算术运算符) &gt; &lt; &gt;= &lt;= == != === !=== (关系运算符)</li>
+<li>转成boolean类型：!（逻辑非运算符）</li>
+</ol>
+<p>以上的规则即是说当遇到+号时就要通过String方法进行隐式转换，遇到++、–这些运算符时就要调用Number进行转换。而遇到！时就要将其转换成boolean值。但是知道这些还不够，因为实际比较中隐式转换会更复杂一些，下面通过几道题分别说明一下：</br><br>1.首先是+号运算符，如果运算符两边只要有一个是字符串，那么这个+号就代表是字符串连接符号，另一个就要调用String方法转换成字符串然后进行拼接即可。</br><br>如下面，因为有个字符串true，所以1会转为字符串，等价于’1’+’true’</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">console.log(1 + &apos;true&apos;) // 1true</span><br></pre></td></tr></table></figure>
 
-<h4 id="2-进入一个文件夹并创建一个文件夹（我是安装在usr-local下）"><a href="#2-进入一个文件夹并创建一个文件夹（我是安装在usr-local下）" class="headerlink" title="2. 进入一个文件夹并创建一个文件夹（我是安装在usr/local下）"></a>2. 进入一个文件夹并创建一个文件夹（我是安装在usr/local下）</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/local/</span><br><span class="line">mkdir nginx</span><br><span class="line">cd nginx</span><br></pre></td></tr></table></figure>
+<p>如果两边都不是字符串，那么就全部调用Number方法转为数字，如下例子:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">console.log(1+true) // true转为数字为1，结果为2</span><br><span class="line">console.log(1+undefined) // undefined转为数字结果为NaN,所以结果为NaN</span><br><span class="line">console.log(1+null) // null转为数字为0，结果为1</span><br></pre></td></tr></table></figure>
+<p>有人可能会问，那么1+[1,2]的结果是什么？对于复杂数据类型，他的转换比较复杂一点，我们后面再讲</p>
+<p>说完+运算符再来说下比较运算符，即&lt;&gt;==这些运算符</br><br>当运算符两边有一个是数字时，那么则调用Number将另一个转为数字进行比较，比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&apos;2&apos; &gt; 10 // false</span><br></pre></td></tr></table></figure>
+<p>如果两边都是字符串，那么则是按照其unicode代码大小进行比较：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&apos;2&apos; &gt; &apos;10&apos;// true</span><br></pre></td></tr></table></figure>
+<p>其他特殊的有：<br>NaN永远不等于NaN、undefined不严格等于null</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NaN == NaN //false</span><br><span class="line">undefined == null //true</span><br><span class="line">undefined === null // false</span><br></pre></td></tr></table></figure>
 
-<h4 id="3-下载Nginx源代码"><a href="#3-下载Nginx源代码" class="headerlink" title="3. 下载Nginx源代码"></a>3. 下载Nginx源代码</h4><p>我是从官网直接source code的下载地址然后直接下载的</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://nginx.org/download/nginx-1.14.2.tar.gz</span><br></pre></td></tr></table></figure>
-
-<h4 id="4-解压压缩包"><a href="#4-解压压缩包" class="headerlink" title="4. 解压压缩包"></a>4. 解压压缩包</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -xvf nginx-1.14.2.tar.gz</span><br></pre></td></tr></table></figure>
-
-<h4 id="5-进入解压后的文件夹，再进入configure文件夹"><a href="#5-进入解压后的文件夹，再进入configure文件夹" class="headerlink" title="5. 进入解压后的文件夹，再进入configure文件夹"></a>5. 进入解压后的文件夹，再进入configure文件夹</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="6-进行编译（所需时间较长需耐心等待）"><a href="#6-进行编译（所需时间较长需耐心等待）" class="headerlink" title="6. 进行编译（所需时间较长需耐心等待）"></a>6. 进行编译（所需时间较长需耐心等待）</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-
-<h4 id="7-进入安装后的文件夹中的conf文件夹，修改配置文件"><a href="#7-进入安装后的文件夹中的conf文件夹，修改配置文件" class="headerlink" title="7. 进入安装后的文件夹中的conf文件夹，修改配置文件"></a>7. 进入安装后的文件夹中的conf文件夹，修改配置文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd ./conf</span><br><span class="line">vim nginx.conf</span><br></pre></td></tr></table></figure>
-
-<h4 id="8-进入安装后的文件夹下的sbin文件夹直接执行可运行文件nginx，开启nginx"><a href="#8-进入安装后的文件夹下的sbin文件夹直接执行可运行文件nginx，开启nginx" class="headerlink" title="8. 进入安装后的文件夹下的sbin文件夹直接执行可运行文件nginx，开启nginx"></a>8. 进入安装后的文件夹下的sbin文件夹直接执行可运行文件nginx，开启nginx</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd ./sbin</span><br><span class="line">./nginx</span><br></pre></td></tr></table></figure>
-<p>在该文件夹下的其他nginx命令 <br><br>./nginx -t<br>查看nginx是否配置正确 </br><br>./nginx -s reload 重启nginx </br><br>./nginx -s quit 停止nginx</p>
-<h4 id="9-检查端口是否已被监听"><a href="#9-检查端口是否已被监听" class="headerlink" title="9. 检查端口是否已被监听"></a>9. 检查端口是否已被监听</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -ntlp</span><br></pre></td></tr></table></figure>
-
-<h4 id="10-浏览器访问ip"><a href="#10-浏览器访问ip" class="headerlink" title="10. 浏览器访问ip"></a>10. 浏览器访问ip</h4><p>如果到这里还不能访问，可能是防火墙问题，需要将80端口开启</p>
+<p>接下来再说下复杂数据的比较，复杂数据的转换都有一个顺序，先调用valueOf取出原始值，再调用toString转为字符串，再通过Number方法转为数字，下面以几道题为例来看看具体的规则：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1.[1,2] ==&apos;1,2&apos; //true</span><br></pre></td></tr></table></figure>
+<p>解析：首先由于等号右边是字符串，那么数组[1,2]只要转字符串就可以进行比较，所以先调用valueOf取出原始值，再调用toString转为字符串，结果为’1,2’，所以运算结果为true</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2.[] == 0 // true</span><br></pre></td></tr></table></figure>
+<p>解析：由于右边是数字，所以要将[]转为数字才能比较，按照上面的顺序进行转换，[]调用valueOf =&gt; [] 调用toString =&gt; ‘’  调用Number =&gt; 0,所以[]==0</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3.![] == 0 // true</span><br></pre></td></tr></table></figure>
+<p>解析：由于!的运算优先级最高，所以先执行!运算，[]是一个空数组，转为布尔值为true，所以![]为false，false转为数字为0，所以![] == 0为true</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">4.[] == ![] // true</span><br></pre></td></tr></table></figure>
+<p>解析：首先是右边，![]结果为false。然后左边进行转换，Number（[].valueOf().toString()）结果为0，转为布尔值为false，所以结果为true</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">5.[] == [] // false</span><br></pre></td></tr></table></figure>
+<p>这个很明显，不用转换，直接进行比较，两个都是空数组，但是并不是同一个数组</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">6.&#123;&#125; == !&#123;&#125; // false</span><br></pre></td></tr></table></figure>
+<p>解析：同样是右边先运算，!{}为false。左边依旧是按照顺序调用，但是调用的结果与数组略有不同。{}.valueOf结果是{}，再调用toString结果为[object Object],转为布尔值为true，所以结果为false</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">7.&#123;&#125; == &#123;&#125; // false</span><br></pre></td></tr></table></figure>
+<p>解析：与第五题道理相同</p>
+<p>那么我们现在可以解决1+[1,2]结果为多少的问题了。</br><br>[1,2].valueOf = [1,2]<br>[1,2].toString = ‘1,2’<br>1+’1,2’ = ‘112’<br>所以结果为字符串’112’</p>
 
 
                 <hr>
@@ -199,13 +208,9 @@
 
                 <ul class="pager">
                     
-                        <li class="previous">
-                            <a href="/2020/02/23/JS隐形转换的规则/" data-toggle="tooltip" data-placement="top" title="JS隐形转换的规则">&larr; Previous Post</a>
-                        </li>
-                    
                     
                         <li class="next">
-                            <a href="/2019/12/23/异步事件（Promise、async、await、setTimeout-）的执行顺序详解/" data-toggle="tooltip" data-placement="top" title="异步事件（Promise、async、await、setTimeout...）的执行顺序详解">Next Post &rarr;</a>
+                            <a href="/2020/01/07/Linux服务器上部署Nginx项目/" data-toggle="tooltip" data-placement="top" title="Linux服务器上部署Nginx项目">Next Post &rarr;</a>
                         </li>
                     
                 </ul>

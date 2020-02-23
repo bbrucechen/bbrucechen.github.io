@@ -13,11 +13,11 @@
 
     <title>
         
-          Linux服务器上部署Nginx项目 - undefined
+          
         
     </title>
 
-    <link rel="canonical" href="http://www.brucecave.com/2020/01/07/Linux服务器上部署Nginx项目/">
+    <link rel="canonical" href="http://www.brucecave.com/archives/2020/02/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -123,126 +123,7 @@
 
 
     <!-- Main Content -->
-    
-<!-- Image to hack wechat -->
-<!-- <img src="http://www.brucecave.com/img/icon_wechat.png" width="0" height="0"> -->
-<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
-
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header{
-        background-image: url('/img/123123.jpg')
-    }
-</style>
-<header class="intro-header" >
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <div class="post-heading">
-                    <div class="tags">
-                        
-                          <a class="tag" href="/tags/#Nginx|Linux" title="Nginx|Linux">Nginx|Linux</a>
-                        
-                    </div>
-                    <h1>Linux服务器上部署Nginx项目</h1>
-                    <h2 class="subheading"></h2>
-                    <span class="meta">
-                        Posted by Bruce Chen on
-                        2020-01-07
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
-
-<!-- Post Content -->
-<article>
-    <div class="container">
-        <div class="row">
-
-    <!-- Post Container -->
-            <div class="
-                col-lg-8 col-lg-offset-2
-                col-md-10 col-md-offset-1
-                post-container">
-
-                <p>今天尝试了下将自己的vue项目部署到nginx服务器上，nginx这玩意轻量级且好用，感觉比较适合我这种vue单页面应用</p>
-<p>直入主题，讲下步骤</p>
-<h4 id="1-安装依赖"><a href="#1-安装依赖" class="headerlink" title="1. 安装依赖"></a>1. 安装依赖</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install gcc zlib zlib-devel pcre-devel openssl openssl-devel</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-进入一个文件夹并创建一个文件夹（我是安装在usr-local下）"><a href="#2-进入一个文件夹并创建一个文件夹（我是安装在usr-local下）" class="headerlink" title="2. 进入一个文件夹并创建一个文件夹（我是安装在usr/local下）"></a>2. 进入一个文件夹并创建一个文件夹（我是安装在usr/local下）</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/local/</span><br><span class="line">mkdir nginx</span><br><span class="line">cd nginx</span><br></pre></td></tr></table></figure>
-
-<h4 id="3-下载Nginx源代码"><a href="#3-下载Nginx源代码" class="headerlink" title="3. 下载Nginx源代码"></a>3. 下载Nginx源代码</h4><p>我是从官网直接source code的下载地址然后直接下载的</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://nginx.org/download/nginx-1.14.2.tar.gz</span><br></pre></td></tr></table></figure>
-
-<h4 id="4-解压压缩包"><a href="#4-解压压缩包" class="headerlink" title="4. 解压压缩包"></a>4. 解压压缩包</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -xvf nginx-1.14.2.tar.gz</span><br></pre></td></tr></table></figure>
-
-<h4 id="5-进入解压后的文件夹，再进入configure文件夹"><a href="#5-进入解压后的文件夹，再进入configure文件夹" class="headerlink" title="5. 进入解压后的文件夹，再进入configure文件夹"></a>5. 进入解压后的文件夹，再进入configure文件夹</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="6-进行编译（所需时间较长需耐心等待）"><a href="#6-进行编译（所需时间较长需耐心等待）" class="headerlink" title="6. 进行编译（所需时间较长需耐心等待）"></a>6. 进行编译（所需时间较长需耐心等待）</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-
-<h4 id="7-进入安装后的文件夹中的conf文件夹，修改配置文件"><a href="#7-进入安装后的文件夹中的conf文件夹，修改配置文件" class="headerlink" title="7. 进入安装后的文件夹中的conf文件夹，修改配置文件"></a>7. 进入安装后的文件夹中的conf文件夹，修改配置文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd ./conf</span><br><span class="line">vim nginx.conf</span><br></pre></td></tr></table></figure>
-
-<h4 id="8-进入安装后的文件夹下的sbin文件夹直接执行可运行文件nginx，开启nginx"><a href="#8-进入安装后的文件夹下的sbin文件夹直接执行可运行文件nginx，开启nginx" class="headerlink" title="8. 进入安装后的文件夹下的sbin文件夹直接执行可运行文件nginx，开启nginx"></a>8. 进入安装后的文件夹下的sbin文件夹直接执行可运行文件nginx，开启nginx</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd ./sbin</span><br><span class="line">./nginx</span><br></pre></td></tr></table></figure>
-<p>在该文件夹下的其他nginx命令 <br><br>./nginx -t<br>查看nginx是否配置正确 </br><br>./nginx -s reload 重启nginx </br><br>./nginx -s quit 停止nginx</p>
-<h4 id="9-检查端口是否已被监听"><a href="#9-检查端口是否已被监听" class="headerlink" title="9. 检查端口是否已被监听"></a>9. 检查端口是否已被监听</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -ntlp</span><br></pre></td></tr></table></figure>
-
-<h4 id="10-浏览器访问ip"><a href="#10-浏览器访问ip" class="headerlink" title="10. 浏览器访问ip"></a>10. 浏览器访问ip</h4><p>如果到这里还不能访问，可能是防火墙问题，需要将80端口开启</p>
-
-
-                <hr>
-
-                
-
-                <ul class="pager">
-                    
-                        <li class="previous">
-                            <a href="/2020/02/23/JS隐形转换的规则/" data-toggle="tooltip" data-placement="top" title="JS隐形转换的规则">&larr; Previous Post</a>
-                        </li>
-                    
-                    
-                        <li class="next">
-                            <a href="/2019/12/23/异步事件（Promise、async、await、setTimeout-）的执行顺序详解/" data-toggle="tooltip" data-placement="top" title="异步事件（Promise、async、await、setTimeout...）的执行顺序详解">Next Post &rarr;</a>
-                        </li>
-                    
-                </ul>
-
-                
-
-                
-
-            </div>
-    <!-- Side Catalog Container -->
-        
-
-    <!-- Sidebar Container -->
-
-            <div class="
-                col-lg-8 col-lg-offset-2
-                col-md-10 col-md-offset-1
-                sidebar-container">
-
-                <!-- Featured Tags -->
-                
-
-                <!-- Friends Blog -->
-                
-            </div>
-
-        </div>
-    </div>
-</article>
-
-
-
-
-
-
-
-
+    <!-- Default Archive layout, we use archives instead. -->
 
     <!-- Footer -->
     <!-- Footer -->
